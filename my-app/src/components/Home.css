@@ -1,0 +1,114 @@
+.container {
+  display: flex;
+  height: 100vh;
+    font-family: sans-serif;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #444;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+/* Thay đổi style của li */
+.sidebar .menu-item {
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: left; /* Canh trái nội dung trong li */
+}
+
+.sidebar .menu-item:hover {
+     background-color: #555;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+    
+}
+.admin-icon{
+    margin-right: 5px;
+}
+
+
+.search-area {
+  display: flex;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+.search-area input{
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-button, .add-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+.search-button{
+    background-color: yellow;
+    color: black
+}
+
+.add-button {
+  background-color: green;
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.student-table th,
+.student-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.student-table th {
+  background-color: #f2f2f2;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+.delete-button, .edit-button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+}
+.delete-button {
+  background-color: red;
+}
+.edit-button{
+    background-color: blue;
+}
+
+/* Icon styles */
+.menu-icon, .user-icon, .group-icon, .calendar-icon, .tasks-icon, .logout-icon{
+    margin-right: 8px;
+}

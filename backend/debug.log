@@ -1,0 +1,131 @@
+[2025-04-01 18:18:43] Requesting attendance for session_id: 5
+[2025-04-01 18:18:43] Database connection failed: 
+[2025-04-01 18:18:43] Error: Không thể kết nối đến cơ sở dữ liệu
+[2025-04-01 18:20:45] Requesting attendance for session_id: 5
+[2025-04-01 18:20:45] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:20:45] Error: Table 'web-new.session_enrollments' doesn't exist
+[2025-04-01 18:22:01] Requesting attendance for session_id: 5
+[2025-04-01 18:22:01] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:22:01] Found 6 students
+[2025-04-01 18:22:01] Successfully retrieved attendance data
+[2025-04-01 18:22:52] Requesting attendance for session_id: 5
+[2025-04-01 18:22:52] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:22:52] Found 6 students
+[2025-04-01 18:22:52] Successfully retrieved attendance data
+[2025-04-01 18:24:45] Requesting attendance for session_id: 5
+[2025-04-01 18:24:45] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:24:45] Found 6 students
+[2025-04-01 18:24:45] Successfully retrieved attendance data
+[2025-04-01 18:25:03] Requesting attendance for session_id: 5
+[2025-04-01 18:25:03] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:03] Found 6 students
+[2025-04-01 18:25:03] Successfully retrieved attendance data
+[2025-04-01 18:25:08] Requesting attendance for session_id: 5
+[2025-04-01 18:25:08] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:08] Found 6 students
+[2025-04-01 18:25:08] Successfully retrieved attendance data
+[2025-04-01 18:25:10] Requesting attendance for session_id: 5
+[2025-04-01 18:25:10] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:10] Found 6 students
+[2025-04-01 18:25:10] Successfully retrieved attendance data
+[2025-04-01 18:25:11] Requesting attendance for session_id: 5
+[2025-04-01 18:25:11] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:11] Found 6 students
+[2025-04-01 18:25:11] Successfully retrieved attendance data
+[2025-04-01 18:25:11] Requesting attendance for session_id: 5
+[2025-04-01 18:25:11] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:11] Found 6 students
+[2025-04-01 18:25:11] Successfully retrieved attendance data
+[2025-04-01 18:25:12] Requesting attendance for session_id: 5
+[2025-04-01 18:25:12] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:25:12] Found 6 students
+[2025-04-01 18:25:12] Successfully retrieved attendance data
+[2025-04-01 18:26:19] Requesting attendance for session_id: 5
+[2025-04-01 18:26:19] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:26:19] Found 6 students
+[2025-04-01 18:26:19] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:25:08"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:09:30"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:26:38] Requesting attendance for session_id: 5
+[2025-04-01 18:26:38] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:26:38] Found 6 students
+[2025-04-01 18:26:38] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:25:08"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:09:30"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:26:48] Requesting attendance for session_id: 5
+[2025-04-01 18:26:48] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:26:48] Found 6 students
+[2025-04-01 18:26:48] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:25:08"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:09:30"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:02] Requesting attendance for session_id: 5
+[2025-04-01 18:28:02] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:02] Found 6 students
+[2025-04-01 18:28:02] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:25:08"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:09:30"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:05] Requesting attendance for session_id: 5
+[2025-04-01 18:28:05] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:05] Found 6 students
+[2025-04-01 18:28:05] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:09:30"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:05] Requesting attendance for session_id: 5
+[2025-04-01 18:28:05] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:05] Found 6 students
+[2025-04-01 18:28:05] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:25:10"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:06] Requesting attendance for session_id: 5
+[2025-04-01 18:28:06] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:06] Found 6 students
+[2025-04-01 18:28:06] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:07] Requesting attendance for session_id: 5
+[2025-04-01 18:28:07] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:07] Found 6 students
+[2025-04-01 18:28:07] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"present","time":"2025-04-01 18:25:11"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:07] Requesting attendance for session_id: 5
+[2025-04-01 18:28:07] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:07] Found 6 students
+[2025-04-01 18:28:07] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"present","time":"2025-04-01 18:25:12"}]}}
+[2025-04-01 18:28:08] Requesting attendance for session_id: 5
+[2025-04-01 18:28:08] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:28:08] Found 6 students
+[2025-04-01 18:28:08] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-01 18:29:19] Requesting attendance for session_id: 5
+[2025-04-01 18:29:19] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:29:19] Found 6 students
+[2025-04-01 18:29:19] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-01 18:29:23] Requesting attendance for session_id: 5
+[2025-04-01 18:29:23] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:29:23] Found 6 students
+[2025-04-01 18:29:23] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"absent","time":"2025-04-01 18:29:23"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:28:05"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-01 18:30:27] Requesting attendance for session_id: 5
+[2025-04-01 18:30:27] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-01 18:30:27] Found 6 students
+[2025-04-01 18:30:27] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"absent","time":"2025-04-01 18:29:23"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"absent","time":"2025-04-01 18:30:27"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-01 18:31:38] Requesting attendance for session_id: 6
+[2025-04-01 18:31:38] Found session: {"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"}
+[2025-04-01 18:31:38] Found 10 students
+[2025-04-01 18:31:38] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"},"attendance":[{"mssv":"DH888888888","hoten":"D\u01b0\u01a1ng L\u00ea V\u0103n","status":"absent","time":"2025-04-01 17:24:55"},{"mssv":"DH52110560","hoten":"L\u1ea1i Th\u1ebf B\u1ea3o","status":"pending","time":null},{"mssv":"DH52110561","hoten":"L\u00ea H\u1ea3i Qu\u00e2n","status":"pending","time":null},{"mssv":"DH52110558","hoten":"L\u00ea Th\u00e0nh \u0110\u1ea1t","status":"pending","time":null},{"mssv":"DH72105210","hoten":"Nguy\u1ec5n Anh B\u1ea3o","status":"present","time":"2025-04-01 17:24:58"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"pending","time":null},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"absent","time":"2025-04-01 17:24:56"},{"mssv":"DH52110563","hoten":"Nguy\u1ec5n H\u1ed3ng H\u00e0","status":"pending","time":null},{"mssv":"DH52110576","hoten":"Nguy\u1ec5n Qu\u1ed1c B\u1ea3o","status":"present","time":"2025-04-01 18:09:37"},{"mssv":"DH52110559","hoten":"Tr\u1ea7n \u0110\u00ecnh \u0110\u1ee9c","status":"pending","time":null}]}}
+[2025-04-01 18:31:45] Requesting attendance for session_id: 6
+[2025-04-01 18:31:45] Found session: {"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"}
+[2025-04-01 18:31:45] Found 10 students
+[2025-04-01 18:31:45] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"},"attendance":[{"mssv":"DH888888888","hoten":"D\u01b0\u01a1ng L\u00ea V\u0103n","status":"absent","time":"2025-04-01 17:24:55"},{"mssv":"DH52110560","hoten":"L\u1ea1i Th\u1ebf B\u1ea3o","status":"pending","time":null},{"mssv":"DH52110561","hoten":"L\u00ea H\u1ea3i Qu\u00e2n","status":"pending","time":null},{"mssv":"DH52110558","hoten":"L\u00ea Th\u00e0nh \u0110\u1ea1t","status":"pending","time":null},{"mssv":"DH72105210","hoten":"Nguy\u1ec5n Anh B\u1ea3o","status":"present","time":"2025-04-01 17:24:58"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:31:45"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"absent","time":"2025-04-01 17:24:56"},{"mssv":"DH52110563","hoten":"Nguy\u1ec5n H\u1ed3ng H\u00e0","status":"pending","time":null},{"mssv":"DH52110576","hoten":"Nguy\u1ec5n Qu\u1ed1c B\u1ea3o","status":"present","time":"2025-04-01 18:09:37"},{"mssv":"DH52110559","hoten":"Tr\u1ea7n \u0110\u00ecnh \u0110\u1ee9c","status":"pending","time":null}]}}
+[2025-04-02 05:51:27] Requesting attendance for session_id: 5
+[2025-04-02 05:51:27] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-02 05:51:27] Found 6 students
+[2025-04-02 05:51:27] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"absent","time":"2025-04-01 18:29:23"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"absent","time":"2025-04-01 18:30:27"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-02 06:23:25] Requesting attendance for session_id: 5
+[2025-04-02 06:23:25] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-02 06:23:25] Found 6 students
+[2025-04-02 06:23:25] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"absent","time":"2025-04-01 18:29:23"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"absent","time":"2025-04-01 18:30:27"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-02 07:08:55] Requesting attendance for session_id: 5
+[2025-04-02 07:08:55] Found session: {"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"}
+[2025-04-02 07:08:55] Found 6 students
+[2025-04-02 07:08:55] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":5,"date":"2025-02-04","time_slot":"Ca 1 (7:00 - 11:00)","room":"C706"},"attendance":[{"mssv":"DH52110580","hoten":"Ng\u00f4 Xu\u00e2n B\u00e1ch","status":"absent","time":"2025-04-01 18:29:23"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"absent","time":"2025-04-01 18:30:27"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"present","time":"2025-04-01 18:28:06"},{"mssv":"DH52110575","hoten":"Nguy\u1ec5n Ho\u00e0ng Th\u1ecbnh","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110562","hoten":"Nguy\u1ec5n Th\u1ecb Th\u1ee5c \u0110oan","status":"absent","time":"2025-04-01 18:28:07"},{"mssv":"DH52110579","hoten":"Tr\u1ea7n V\u0103n H\u00f9ng","status":"absent","time":"2025-04-01 18:28:08"}]}}
+[2025-04-02 08:00:21] Requesting attendance for session_id: {id}
+[2025-04-02 08:00:21] Session not found: {id}
+[2025-04-02 08:00:21] Error: Ca học không tồn tại
+[2025-04-02 08:00:29] Requesting attendance for session_id: {3}
+[2025-04-02 08:00:29] Session not found: {3}
+[2025-04-02 08:00:29] Error: Ca học không tồn tại
+[2025-04-02 08:00:32] Requesting attendance for session_id: 3
+[2025-04-02 08:00:32] Session not found: 3
+[2025-04-02 08:00:32] Error: Ca học không tồn tại
+[2025-04-02 08:00:35] Requesting attendance for session_id: 6
+[2025-04-02 08:00:35] Found session: {"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"}
+[2025-04-02 08:00:35] Found 10 students
+[2025-04-02 08:00:35] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"},"attendance":[{"mssv":"DH888888888","hoten":"D\u01b0\u01a1ng L\u00ea V\u0103n","status":"absent","time":"2025-04-01 17:24:55"},{"mssv":"DH52110560","hoten":"L\u1ea1i Th\u1ebf B\u1ea3o","status":"pending","time":null},{"mssv":"DH52110561","hoten":"L\u00ea H\u1ea3i Qu\u00e2n","status":"pending","time":null},{"mssv":"DH52110558","hoten":"L\u00ea Th\u00e0nh \u0110\u1ea1t","status":"pending","time":null},{"mssv":"DH72105210","hoten":"Nguy\u1ec5n Anh B\u1ea3o","status":"present","time":"2025-04-01 17:24:58"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:31:45"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"absent","time":"2025-04-01 17:24:56"},{"mssv":"DH52110563","hoten":"Nguy\u1ec5n H\u1ed3ng H\u00e0","status":"pending","time":null},{"mssv":"DH52110576","hoten":"Nguy\u1ec5n Qu\u1ed1c B\u1ea3o","status":"present","time":"2025-04-01 18:09:37"},{"mssv":"DH52110559","hoten":"Tr\u1ea7n \u0110\u00ecnh \u0110\u1ee9c","status":"pending","time":null}]}}
+[2025-04-02 08:10:00] Requesting attendance for session_id: 6
+[2025-04-02 08:10:00] Found session: {"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"}
+[2025-04-02 08:10:00] Found 10 students
+[2025-04-02 08:10:00] Successfully retrieved attendance data: {"success":true,"data":{"session":{"id":6,"date":"2025-04-02","time_slot":"Ca 3 (17:00 - 21:00)","room":"C704"},"attendance":[{"mssv":"DH888888888","hoten":"D\u01b0\u01a1ng L\u00ea V\u0103n","status":"absent","time":"2025-04-01 17:24:55"},{"mssv":"DH52110560","hoten":"L\u1ea1i Th\u1ebf B\u1ea3o","status":"pending","time":null},{"mssv":"DH52110561","hoten":"L\u00ea H\u1ea3i Qu\u00e2n","status":"pending","time":null},{"mssv":"DH52110558","hoten":"L\u00ea Th\u00e0nh \u0110\u1ea1t","status":"pending","time":null},{"mssv":"DH72105210","hoten":"Nguy\u1ec5n Anh B\u1ea3o","status":"present","time":"2025-04-01 17:24:58"},{"mssv":"DH52110556","hoten":"Nguy\u1ec5n B\u1ea3o Anh","status":"present","time":"2025-04-01 18:31:45"},{"mssv":"DH52708078","hoten":"Nguy\u1ec5n Ch\u00ed Ngh\u0129a","status":"absent","time":"2025-04-01 17:24:56"},{"mssv":"DH52110563","hoten":"Nguy\u1ec5n H\u1ed3ng H\u00e0","status":"pending","time":null},{"mssv":"DH52110576","hoten":"Nguy\u1ec5n Qu\u1ed1c B\u1ea3o","status":"present","time":"2025-04-01 18:09:37"},{"mssv":"DH52110559","hoten":"Tr\u1ea7n \u0110\u00ecnh \u0110\u1ee9c","status":"pending","time":null}]}}
