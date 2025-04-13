@@ -10,11 +10,16 @@ const app = express();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: ['https://qlsinhvien-git-master-baoanhs-projects.vercel.app', 'http://localhost:3000'],
+  origin: ['https://qlsinhvien-ecru.vercel.app', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposedHeaders: ['Content-Length', 'X-Kuma-Revision'],
+  maxAge: 600
 }));
+
+// Xử lý preflight requests
+app.options('*', cors());
 
 app.use(bodyParser.json());
 app.use(cookieParser());
