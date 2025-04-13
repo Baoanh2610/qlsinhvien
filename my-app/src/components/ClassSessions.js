@@ -17,9 +17,36 @@ const ClassSessions = () => {
     const [loading, setLoading] = useState(false);
     const [sessionStudents, setSessionStudents] = useState({});
 
-    useEffect(() => {
-        fetchSessions();
-        fetchStudents();
+    const fetchSessionStudents = useCallback(async (sessionId) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-session-students?session_id=${sessionId}`);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            console.log(`Session ${sessionId} students:`, data);
+
+            // Luôn đảm bảo cập nhật state với một mảng
+            if (data.success && Array.isArray(data.students)) {
+                setSessionStudents(prev => ({
+                    ...prev,
+                    [sessionId]: data.students
+                }));
+                return data.students;
+            } else {
+                console.error(`Dữ liệu sinh viên không đúng định dạng cho session ${sessionId}:`, data);
+                setSessionStudents(prev => ({
+                    ...prev,
+                    [sessionId]: []  // Mảng trống làm giá trị mặc định
+                }));
+                return [];
+            }
+        } catch (error) {
+            console.error(`Lỗi khi lấy sinh viên cho session ${sessionId}:`, error);
+            setSessionStudents(prev => ({
+                ...prev,
+                [sessionId]: []  // Mảng trống khi có lỗi
+            }));
+            return [];
+        }
     }, []);
 
     const fetchSessions = useCallback(async () => {
@@ -30,25 +57,18 @@ const ClassSessions = () => {
             console.log('Sessions data:', data);
             if (data.success && Array.isArray(data.sessions)) {
                 setSessions(data.sessions);
-                // Khởi tạo sessionStudents
+
+                // Khởi tạo sessionStudents với mảng trống cho mỗi session
                 const initialSessionStudents = {};
                 data.sessions.forEach(session => {
                     initialSessionStudents[session.id] = initialSessionStudents[session.id] || [];
                 });
-                setSessionStudents(initialSessionStudents);
+                setSessionStudents(prev => ({ ...prev, ...initialSessionStudents }));
+
                 // Lấy danh sách sinh viên cho từng session
-                await Promise.all(
-                    data.sessions.map(session =>
-                        fetchSessionStudents(session.id).catch(err => {
-                            console.error(`Lỗi khi lấy sinh viên cho session ${session.id}:`, err);
-                            setSessionStudents(prev => ({
-                                ...prev,
-                                [session.id]: []
-                            }));
-                            return [];
-                        })
-                    )
-                );
+                for (const session of data.sessions) {
+                    await fetchSessionStudents(session.id);
+                }
             } else {
                 console.error('Dữ liệu ca học không đúng định dạng:', data);
                 toast.error('Dữ liệu ca học không đúng định dạng');
@@ -59,7 +79,7 @@ const ClassSessions = () => {
             toast.error('Không thể tải danh sách ca học');
             setSessions([]);
         }
-    }, []);
+    }, [fetchSessionStudents]);
 
     const fetchStudents = async () => {
         try {
@@ -81,44 +101,10 @@ const ClassSessions = () => {
         }
     };
 
-    const fetchSessionStudents = useCallback(async (sessionId) => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-session-students?session_id=${sessionId}`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const data = await response.json();
-            console.log(`Session ${sessionId} students:`, data);
-            if (data.success && Array.isArray(data.students)) {
-                setSessionStudents(prev => ({
-                    ...prev,
-                    [sessionId]: data.students
-                }));
-                return data.students;
-            } else {
-                console.error(`Dữ liệu sinh viên không đúng định dạng cho session ${sessionId}:`, data);
-                setSessionStudents(prev => ({
-                    ...prev,
-                    [sessionId]: []
-                }));
-                return [];
-            }
-        } catch (error) {
-            console.error(`Lỗi khi lấy sinh viên cho session ${sessionId}:`, error);
-            setSessionStudents(prev => ({
-                ...prev,
-                [sessionId]: []
-            }));
-            return [];
-        }
-    }, []);
-
     useEffect(() => {
-        if (sessions.length > 0) {
-            // Lấy danh sách sinh viên cho từng session
-            sessions.forEach(session => {
-                fetchSessionStudents(session.id);
-            });
-        }
-    }, [sessions, fetchSessionStudents]);
+        fetchSessions();
+        fetchStudents();
+    }, [fetchSessions]);
 
     const handleAddSession = async e => {
         e.preventDefault();
@@ -219,16 +205,19 @@ const ClassSessions = () => {
     };
 
     const handleRemoveMember = async (sessionId, mssv) => {
-        if (!sessionStudents[sessionId] || !Array.isArray(sessionStudents[sessionId])) return;
-        const updatedStudents = sessionStudents[sessionId].filter(student => student.mssv !== mssv);
-        if (updatedStudents.length === 0) {
+        if (!sessionStudents[sessionId] || !Array.isArray(sessionStudents[sessionId])) {
+            console.error(`Không thể xóa sinh viên, sessionStudents[${sessionId}] không phải là mảng`);
+            return;
+        }
+
+        const updatedStudentsList = sessionStudents[sessionId]
+            .filter(student => student.mssv !== mssv)
+            .map(s => s.mssv);
+
+        if (updatedStudentsList.length === 0) {
             await handleDeleteSession(sessionId);
         } else {
-            await handleUpdateSession(sessionId, updatedStudents.map(s => s.mssv));
-            setSessionStudents(prev => ({
-                ...prev,
-                [sessionId]: updatedStudents
-            }));
+            await handleUpdateSession(sessionId, updatedStudentsList);
         }
     };
 
@@ -237,15 +226,35 @@ const ClassSessions = () => {
             toast.error('Vui lòng chọn ít nhất một sinh viên để thêm');
             return;
         }
-        const updatedStudents = [
-            ...(sessionStudents[editingSession.id] || []),
-            ...students.filter(student => selectedStudents.includes(student.mssv))
+
+        if (!editingSession || !editingSession.id) {
+            toast.error('Không có ca học được chọn');
+            return;
+        }
+
+        const sessionId = editingSession.id;
+
+        // Đảm bảo sessionStudents[sessionId] là một mảng
+        const currentSessionStudents = Array.isArray(sessionStudents[sessionId])
+            ? sessionStudents[sessionId]
+            : [];
+
+        // Lấy danh sách MSSV hiện có
+        const existingMssvs = currentSessionStudents.map(s => s.mssv);
+
+        // Lấy thông tin sinh viên từ danh sách sinh viên chưa phân ca
+        const selectedStudentObjects = students.filter(s => selectedStudents.includes(s.mssv));
+
+        // Kết hợp hai danh sách và loại bỏ trùng lặp
+        const combinedStudents = [
+            ...currentSessionStudents,
+            ...selectedStudentObjects
         ];
-        await handleUpdateSession(editingSession.id, updatedStudents.map(s => s.mssv));
-        setSessionStudents(prev => ({
-            ...prev,
-            [editingSession.id]: updatedStudents
-        }));
+
+        // Lấy danh sách MSSV để gửi lên server
+        const mssvList = combinedStudents.map(s => s.mssv);
+
+        await handleUpdateSession(sessionId, mssvList);
         setSelectedStudents([]);
         setEditMode(null);
     };
@@ -346,7 +355,6 @@ const ClassSessions = () => {
                                 <td>{session.room}</td>
                                 <td>
                                     <ul className="student-list">
-                                        {console.log(`Render session ${session.id}:`, sessionStudents[session.id])}
                                         {sessionStudents[session.id] === undefined ? (
                                             <li>Đang tải...</li>
                                         ) : !Array.isArray(sessionStudents[session.id]) ? (
@@ -355,7 +363,7 @@ const ClassSessions = () => {
                                             <li>Không có sinh viên</li>
                                         ) : (
                                             sessionStudents[session.id].map((student, index) => (
-                                                <li key={student.mssv || index}>
+                                                <li key={student.mssv || `student-${index}`}>
                                                     {student.hoten} - {student.mssv}
                                                     {editingSession?.id === session.id && editMode === 'remove' && (
                                                         <span
