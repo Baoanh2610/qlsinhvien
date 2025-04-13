@@ -589,6 +589,32 @@ app.post("/mark-notification-read", (req, res) => {
   });
 });
 
+// API lấy danh sách sinh viên chưa được phân ca học
+app.get("/get-unassigned-students", (req, res) => {
+  const sql = `
+    SELECT s.* 
+    FROM students s
+    LEFT JOIN session_enrollments se ON s.mssv = se.mssv
+    WHERE se.mssv IS NULL
+    ORDER BY s.hoten ASC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    res.json({
+      success: true,
+      students: results
+    });
+  });
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
