@@ -20,6 +20,11 @@ const Login = () => {
                 email,
                 password,
                 role
+            }, {
+                timeout: 10000, // 10 giây timeout
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.data.success) {
@@ -49,8 +54,44 @@ const Login = () => {
     };
 
     return (
-        <div>
-            {/* Render your form here */}
+        <div className="login-container">
+            <h2>Đăng nhập</h2>
+            {error && <div className="error-message">{error}</div>}
+            <form onSubmit={handleLogin}>
+                <div className="form-group">
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Mật khẩu:</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <div className="form-group">
+                    <label>Vai trò:</label>
+                    <select
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        required
+                    >
+                        <option value="">Chọn vai trò</option>
+                        <option value="admin">Admin</option>
+                        <option value="student">Sinh viên</option>
+                    </select>
+                </div>
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                </button>
+            </form>
         </div>
     );
 };
