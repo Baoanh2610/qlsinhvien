@@ -8,21 +8,50 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Kết nối MySQL
-const db = mysql.createConnection({
+// Kết nối MySQL với cấu hình chi tiết
+const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-});
+  connectTimeout: 10000, // 10 seconds
+  acquireTimeout: 10000, // 10 seconds
+  timeout: 60000, // 60 seconds
+  multipleStatements: true,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
 
-db.connect((err) => {
-  if (err) {
-    console.error("Lỗi kết nối MySQL:", err);
-  } else {
-    console.log("Kết nối MySQL thành công!");
-  }
-});
+// Hàm kết nối với retry logic
+function connectWithRetry() {
+  const db = mysql.createConnection(dbConfig);
+
+  db.connect((err) => {
+    if (err) {
+      console.error('Lỗi kết nối MySQL:', err);
+      console.log('Thử kết nối lại sau 5 giây...');
+      setTimeout(connectWithRetry, 5000);
+    } else {
+      console.log('Kết nối MySQL thành công!');
+    }
+  });
+
+  // Xử lý lỗi kết nối
+  db.on('error', (err) => {
+    console.error('Lỗi MySQL:', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      console.log('Kết nối bị mất, thử kết nối lại...');
+      connectWithRetry();
+    } else {
+      throw err;
+    }
+  });
+
+  return db;
+}
+
+const db = connectWithRetry();
 
 // API đăng ký người dùng
 app.post("/register", (req, res) => {
