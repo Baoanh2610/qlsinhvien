@@ -25,8 +25,8 @@ const GroupManagement = () => {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
-            if (Array.isArray(data)) {
-                setSessions(data);
+            if (data.success && data.data) {
+                setSessions(data.data);
             } else {
                 toast.error('Dữ liệu không đúng định dạng');
             }
@@ -42,10 +42,10 @@ const GroupManagement = () => {
                 `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`
             );
             const groupData = await groupResponse.json();
-            if (groupData.success && groupData.data.groups) {
+            if (groupData.success && groupData.groups) {
                 const groupedStudents = new Set();
-                groupData.data.groups.forEach((group) => {
-                    group.members.forEach((member) => groupedStudents.add(member.mssv));
+                groupData.groups.forEach((group) => {
+                    group.member_mssvs.forEach((mssv) => groupedStudents.add(mssv));
                 });
                 return allStudents.filter((student) => !groupedStudents.has(student.mssv));
             }
@@ -88,8 +88,8 @@ const GroupManagement = () => {
             );
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
-            if (data.success) {
-                setGroups(data.data.groups);
+            if (data.success && data.groups) {
+                setGroups(data.groups);
             } else {
                 toast.error(data.message || 'Không thể tải danh sách nhóm');
             }
