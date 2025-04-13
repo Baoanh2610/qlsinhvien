@@ -20,9 +20,6 @@ const dbConfig = {
     ca: process.env.DB_CA_CERT
   },
   connectTimeout: 60000,
-  acquireTimeout: 60000,
-  timeout: 120000,
-  multipleStatements: true,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
