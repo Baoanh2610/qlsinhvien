@@ -16,7 +16,6 @@ const ClassSessions = () => {
     const [editMode, setEditMode] = useState(null); // 'remove' hoặc 'add'
     const [loading, setLoading] = useState(false);
     const [sessionStudents, setSessionStudents] = useState({});
-    const [selectedSession, setSelectedSession] = useState(null);
 
     useEffect(() => {
         fetchSessions();
@@ -26,24 +25,38 @@ const ClassSessions = () => {
     const fetchSessions = useCallback(async () => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
-            if (data.success && data.sessions) {
+            console.log('Sessions data:', data); // Log dữ liệu ca học
+            if (data.success && Array.isArray(data.sessions)) {
                 setSessions(data.sessions);
+                // Gọi fetchSessionStudents cho mỗi session
+                await Promise.all(
+                    data.sessions.map(session =>
+                        fetchSessionStudents(session.id).catch(err => {
+                            console.error(`Lỗi khi lấy sinh viên cho session ${session.id}:`, err);
+                            return [];
+                        })
+                    )
+                );
             } else {
-                toast.error('Dữ liệu không đúng định dạng');
+                console.error('Dữ liệu ca học không đúng định dạng:', data);
+                toast.error('Dữ liệu ca học không đúng định dạng');
+                setSessions([]);
             }
         } catch (error) {
-            console.error('Error fetching sessions:', error);
+            console.error('Lỗi khi lấy danh sách ca học:', error);
             toast.error('Không thể tải danh sách ca học');
+            setSessions([]);
         }
     }, []);
 
     const fetchStudents = async () => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/get-unassigned-students`);
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
+            console.log('Unassigned students data:', data); // Log dữ liệu sinh viên
             if (data.success && Array.isArray(data.students)) {
                 setStudents(data.students);
             } else {
@@ -61,34 +74,34 @@ const ClassSessions = () => {
     const fetchSessionStudents = useCallback(async (sessionId) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/get-session-students?session_id=${sessionId}`);
-            if (!response.ok) throw new Error('Network response was not ok');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
             const data = await response.json();
+            console.log(`Session ${sessionId} students:`, data); // Log dữ liệu
             if (data.success && Array.isArray(data.students)) {
                 setSessionStudents(prev => ({
                     ...prev,
                     [sessionId]: data.students
                 }));
+                return data.students;
             } else {
-                console.error('Dữ liệu sinh viên không đúng định dạng:', data);
+                console.error(`Dữ liệu sinh viên không đúng định dạng cho session ${sessionId}:`, data);
                 setSessionStudents(prev => ({
                     ...prev,
                     [sessionId]: []
                 }));
+                return [];
             }
         } catch (error) {
-            console.error('Lỗi khi lấy danh sách sinh viên:', error);
+            console.error(`Lỗi khi lấy sinh viên cho session ${sessionId}:`, error);
             setSessionStudents(prev => ({
                 ...prev,
                 [sessionId]: []
             }));
+            return [];
         }
     }, []);
-
-    useEffect(() => {
-        if (selectedSession) {
-            fetchSessionStudents(selectedSession);
-        }
-    }, [selectedSession, fetchSessionStudents]);
 
     const handleAddSession = async (e) => {
         e.preventDefault();
@@ -184,12 +197,12 @@ const ClassSessions = () => {
 
     const handleEditSession = (session) => {
         setEditingSession(session);
-        setSelectedSession(session.id);
         setSelectedStudents([]);
         setEditMode(null);
     };
 
     const handleRemoveMember = async (sessionId, mssv) => {
+        if (!sessionStudents[sessionId]) return;
         const updatedStudents = sessionStudents[sessionId].filter(student => student.mssv !== mssv);
         if (updatedStudents.length === 0) {
             await handleDeleteSession(sessionId);
@@ -207,7 +220,10 @@ const ClassSessions = () => {
             toast.error('Vui lòng chọn ít nhất một sinh viên để thêm');
             return;
         }
-        const updatedStudents = [...sessionStudents[editingSession.id], ...students.filter(student => selectedStudents.includes(student.mssv))];
+        const updatedStudents = [
+            ...(sessionStudents[editingSession.id] || []),
+            ...students.filter(student => selectedStudents.includes(student.mssv))
+        ];
         await handleUpdateSession(editingSession.id, updatedStudents.map(s => s.mssv));
         setSessionStudents(prev => ({
             ...prev,
@@ -318,26 +334,24 @@ const ClassSessions = () => {
                                 <td>{session.room}</td>
                                 <td>
                                     <ul className="student-list">
-                                        {sessionStudents[session.id] !== undefined ? (
-                                            Array.isArray(sessionStudents[session.id]) && sessionStudents[session.id].length > 0 ? (
-                                                sessionStudents[session.id].map((student, index) => (
-                                                    <li key={index}>
-                                                        {student.hoten} - {student.mssv}
-                                                        {editingSession && editingSession.id === session.id && editMode === 'remove' && (
-                                                            <span
-                                                                className="remove-member"
-                                                                onClick={() => handleRemoveMember(session.id, student.mssv)}
-                                                            >
-                                                                ✗
-                                                            </span>
-                                                        )}
-                                                    </li>
-                                                ))
-                                            ) : (
-                                                <li>Không có sinh viên nào trong ca học này</li>
-                                            )
-                                        ) : (
+                                        {sessionStudents[session.id] === undefined ? (
                                             <li>Đang tải danh sách sinh viên...</li>
+                                        ) : !Array.isArray(sessionStudents[session.id]) || sessionStudents[session.id].length === 0 ? (
+                                            <li>Không có sinh viên nào trong ca học này</li>
+                                        ) : (
+                                            sessionStudents[session.id].map((student, index) => (
+                                                <li key={index}>
+                                                    {student.hoten} - {student.mssv}
+                                                    {editingSession && editingSession.id === session.id && editMode === 'remove' && (
+                                                        <span
+                                                            className="remove-member"
+                                                            onClick={() => handleRemoveMember(session.id, student.mssv)}
+                                                        >
+                                                            ✗
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            ))
                                         )}
                                     </ul>
                                     {editingSession && editingSession.id === session.id && editMode === 'add' && (
