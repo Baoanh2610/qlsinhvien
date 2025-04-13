@@ -3,7 +3,7 @@ import './ClassSessions.css';
 import { toast } from 'react-toastify';
 
 const ClassSessions = () => {
-    const [sessions, setSessions] = useState([]);
+    const [sessions, setSessions] = useState([]);  // Ensure this is initialized as an empty array
     const [students, setStudents] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedStudents, setSelectedStudents] = useState([]);
@@ -51,10 +51,13 @@ const ClassSessions = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
+            setLoading(true);
             const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
             console.log('Sessions data:', data);
+
+            // Always make sure we set sessions to an array
             if (data.success && Array.isArray(data.sessions)) {
                 setSessions(data.sessions);
 
@@ -72,12 +75,14 @@ const ClassSessions = () => {
             } else {
                 console.error('Dữ liệu ca học không đúng định dạng:', data);
                 toast.error('Dữ liệu ca học không đúng định dạng');
-                setSessions([]);
+                setSessions([]);  // Ensure we set an empty array
             }
         } catch (error) {
             console.error('Lỗi khi lấy danh sách ca học:', error);
             toast.error('Không thể tải danh sách ca học');
-            setSessions([]);
+            setSessions([]);  // Ensure we set an empty array
+        } finally {
+            setLoading(false);
         }
     }, [fetchSessionStudents]);
 
@@ -311,7 +316,7 @@ const ClassSessions = () => {
                     <div className="form-group">
                         <label>Chọn sinh viên:</label>
                         <div className="student-selection">
-                            {students.length > 0 ? (
+                            {Array.isArray(students) && students.length > 0 ? (
                                 students.map(student => (
                                     <div key={student.mssv} className="student-checkbox">
                                         <input
@@ -337,116 +342,124 @@ const ClassSessions = () => {
             )}
 
             <div className="sessions-list">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ngày</th>
-                            <th>Ca học</th>
-                            <th>Phòng học</th>
-                            <th>Sinh viên</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {sessions.map(session => (
-                            <tr key={session.id}>
-                                <td>{new Date(session.date).toLocaleDateString()}</td>
-                                <td>{session.time_slot}</td>
-                                <td>{session.room}</td>
-                                <td>
-                                    <ul className="student-list">
-                                        {sessionStudents[session.id] === undefined ? (
-                                            <li>Đang tải...</li>
-                                        ) : !Array.isArray(sessionStudents[session.id]) ? (
-                                            <li>Lỗi dữ liệu: Không phải danh sách sinh viên</li>
-                                        ) : sessionStudents[session.id].length === 0 ? (
-                                            <li>Không có sinh viên</li>
-                                        ) : (
-                                            sessionStudents[session.id].map((student, index) => (
-                                                <li key={student.mssv || `student-${index}`}>
-                                                    {student.hoten} - {student.mssv}
-                                                    {editingSession?.id === session.id && editMode === 'remove' && (
-                                                        <span
-                                                            className="remove-member"
-                                                            onClick={() => handleRemoveMember(session.id, student.mssv)}
-                                                        >
-                                                            ✗
-                                                        </span>
-                                                    )}
-                                                </li>
-                                            ))
-                                        )}
-                                    </ul>
-                                    {editingSession?.id === session.id && editMode === 'add' && (
-                                        <div className="add-members">
-                                            <span className="add-member-btn" onClick={() => setEditMode('selecting')}>
-                                                +
-                                            </span>
-                                        </div>
-                                    )}
-                                    {editingSession?.id === session.id && editMode === 'selecting' && (
-                                        <div className="student-selection">
-                                            <h4>Chọn Sinh Viên:</h4>
-                                            {students.length === 0 ? (
-                                                <p>Không còn sinh viên</p>
-                                            ) : (
-                                                <>
-                                                    {students.map(student => (
-                                                        <div key={student.mssv} className="student-checkbox">
-                                                            <input
-                                                                type="checkbox"
-                                                                id={`add-${student.mssv}`}
-                                                                checked={selectedStudents.includes(student.mssv)}
-                                                                onChange={() => handleStudentSelect(student.mssv)}
-                                                            />
-                                                            <label htmlFor={`add-${student.mssv}`}>
-                                                                {student.hoten} - {student.mssv}
-                                                            </label>
-                                                        </div>
-                                                    ))}
-                                                    <div className="edit-actions">
-                                                        <button
-                                                            className="submit-btn"
-                                                            onClick={handleAddMembers}
-                                                            disabled={loading}
-                                                        >
-                                                            Thêm
-                                                        </button>
-                                                        <button
-                                                            className="cancel-btn"
-                                                            onClick={() => setEditMode(null)}
-                                                            disabled={loading}
-                                                        >
-                                                            Hủy
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    )}
-                                </td>
-                                <td>
-                                    <button className="edit-btn" onClick={() => handleEditSession(session)}>
-                                        Chỉnh Sửa
-                                    </button>
-                                    <button className="delete-btn" onClick={() => handleDeleteSession(session.id)}>
-                                        Xóa
-                                    </button>
-                                    {editingSession?.id === session.id && (
-                                        <div className="edit-actions">
-                                            <button className="add-btn" onClick={() => setEditMode('add')}>
-                                                Thêm
-                                            </button>
-                                            <button className="remove-btn" onClick={() => setEditMode('remove')}>
-                                                Xóa
-                                            </button>
-                                        </div>
-                                    )}
-                                </td>
+                {loading && <p className="loading-message">Đang tải dữ liệu...</p>}
+
+                {!loading && Array.isArray(sessions) && sessions.length === 0 && (
+                    <p className="no-data-message">Không có ca học nào</p>
+                )}
+
+                {Array.isArray(sessions) && sessions.length > 0 && (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Ca học</th>
+                                <th>Phòng học</th>
+                                <th>Sinh viên</th>
+                                <th>Thao tác</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {sessions.map(session => (
+                                <tr key={session.id}>
+                                    <td>{new Date(session.date).toLocaleDateString()}</td>
+                                    <td>{session.time_slot}</td>
+                                    <td>{session.room}</td>
+                                    <td>
+                                        <ul className="student-list">
+                                            {sessionStudents[session.id] === undefined ? (
+                                                <li>Đang tải...</li>
+                                            ) : !Array.isArray(sessionStudents[session.id]) ? (
+                                                <li>Lỗi dữ liệu: Không phải danh sách sinh viên</li>
+                                            ) : sessionStudents[session.id].length === 0 ? (
+                                                <li>Không có sinh viên</li>
+                                            ) : (
+                                                sessionStudents[session.id].map((student, index) => (
+                                                    <li key={student.mssv || `student-${index}`}>
+                                                        {student.hoten} - {student.mssv}
+                                                        {editingSession?.id === session.id && editMode === 'remove' && (
+                                                            <span
+                                                                className="remove-member"
+                                                                onClick={() => handleRemoveMember(session.id, student.mssv)}
+                                                            >
+                                                                ✗
+                                                            </span>
+                                                        )}
+                                                    </li>
+                                                ))
+                                            )}
+                                        </ul>
+                                        {editingSession?.id === session.id && editMode === 'add' && (
+                                            <div className="add-members">
+                                                <span className="add-member-btn" onClick={() => setEditMode('selecting')}>
+                                                    +
+                                                </span>
+                                            </div>
+                                        )}
+                                        {editingSession?.id === session.id && editMode === 'selecting' && (
+                                            <div className="student-selection">
+                                                <h4>Chọn Sinh Viên:</h4>
+                                                {Array.isArray(students) && students.length === 0 ? (
+                                                    <p>Không còn sinh viên</p>
+                                                ) : (
+                                                    <>
+                                                        {Array.isArray(students) && students.map(student => (
+                                                            <div key={student.mssv} className="student-checkbox">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    id={`add-${student.mssv}`}
+                                                                    checked={selectedStudents.includes(student.mssv)}
+                                                                    onChange={() => handleStudentSelect(student.mssv)}
+                                                                />
+                                                                <label htmlFor={`add-${student.mssv}`}>
+                                                                    {student.hoten} - {student.mssv}
+                                                                </label>
+                                                            </div>
+                                                        ))}
+                                                        <div className="edit-actions">
+                                                            <button
+                                                                className="submit-btn"
+                                                                onClick={handleAddMembers}
+                                                                disabled={loading}
+                                                            >
+                                                                Thêm
+                                                            </button>
+                                                            <button
+                                                                className="cancel-btn"
+                                                                onClick={() => setEditMode(null)}
+                                                                disabled={loading}
+                                                            >
+                                                                Hủy
+                                                            </button>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <button className="edit-btn" onClick={() => handleEditSession(session)}>
+                                            Chỉnh Sửa
+                                        </button>
+                                        <button className="delete-btn" onClick={() => handleDeleteSession(session.id)}>
+                                            Xóa
+                                        </button>
+                                        {editingSession?.id === session.id && (
+                                            <div className="edit-actions">
+                                                <button className="add-btn" onClick={() => setEditMode('add')}>
+                                                    Thêm
+                                                </button>
+                                                <button className="remove-btn" onClick={() => setEditMode('remove')}>
+                                                    Xóa
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );
