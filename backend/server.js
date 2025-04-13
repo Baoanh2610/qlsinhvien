@@ -466,6 +466,80 @@ app.post("/class-sessions", (req, res) => {
   });
 });
 
+// API cập nhật ca học
+app.put("/class-sessions", (req, res) => {
+  const { id, students } = req.body;
+  if (!id || !Array.isArray(students)) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu id hoặc danh sách sinh viên không hợp lệ"
+    });
+  }
+  db.query("DELETE FROM session_enrollments WHERE session_id = ?", [id], (err) => {
+    if (err) {
+      console.error("Lỗi khi xóa sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+    if (students.length > 0) {
+      const values = students.map(mssv => [id, mssv]);
+      db.query("INSERT INTO session_enrollments (session_id, mssv) VALUES ?", [values], (err) => {
+        if (err) {
+          console.error("Lỗi khi thêm sinh viên:", err);
+          return res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ"
+          });
+        }
+        res.json({
+          success: true,
+          message: "Cập nhật ca học thành công"
+        });
+      });
+    } else {
+      res.json({
+        success: true,
+        message: "Cập nhật ca học thành công"
+      });
+    }
+  });
+});
+
+// API xóa ca học
+app.delete("/class-sessions", (req, res) => {
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu id"
+    });
+  }
+  db.query("DELETE FROM session_enrollments WHERE session_id = ?", [id], (err) => {
+    if (err) {
+      console.error("Lỗi khi xóa sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+    db.query("DELETE FROM class_sessions WHERE id = ?", [id], (err) => {
+      if (err) {
+        console.error("Lỗi khi xóa ca học:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Lỗi máy chủ"
+        });
+      }
+      res.json({
+        success: true,
+        message: "Xóa ca học thành công"
+      });
+    });
+  });
+});
+
 // API quản lý nhóm
 app.get("/get-groups", (req, res) => {
   const { session_id } = req.query;
