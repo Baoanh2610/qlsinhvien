@@ -286,19 +286,27 @@ const ClassSessions = () => {
                                 <td>{session.room}</td>
                                 <td>
                                     <ul className="student-list">
-                                        {session.students && Array.isArray(session.students) && session.students.map((student, index) => (
-                                            <li key={index}>
-                                                {student.hoten} - {student.mssv}
-                                                {editingSession && editingSession.id === session.id && editMode === 'remove' && (
-                                                    <span
-                                                        className="remove-member"
-                                                        onClick={() => handleRemoveMember(session.id, student.mssv)}
-                                                    >
-                                                        ✗
-                                                    </span>
-                                                )}
-                                            </li>
-                                        ))}
+                                        {session.students ? (
+                                            Array.isArray(session.students) ? (
+                                                session.students.map((student, index) => (
+                                                    <li key={index}>
+                                                        {student.hoten} - {student.mssv}
+                                                        {editingSession && editingSession.id === session.id && editMode === 'remove' && (
+                                                            <span
+                                                                className="remove-member"
+                                                                onClick={() => handleRemoveMember(session.id, student.mssv)}
+                                                            >
+                                                                ✗
+                                                            </span>
+                                                        )}
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li>Không có sinh viên nào trong ca học này</li>
+                                            )
+                                        ) : (
+                                            <li>Đang tải danh sách sinh viên...</li>
+                                        )}
                                     </ul>
                                     {editingSession && editingSession.id === session.id && editMode === 'add' && (
                                         <div className="add-members">
