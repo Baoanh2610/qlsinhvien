@@ -1,5 +1,5 @@
 const express = require("express");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 require('dotenv').config();
@@ -14,18 +14,20 @@ const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: 17714, // Port từ Aiven
+  port: 17714,
   ssl: {
     rejectUnauthorized: false,
-    ca: process.env.DB_CA_CERT // Thêm CA certificate nếu có
+    ca: process.env.DB_CA_CERT
   },
-  connectTimeout: 30000,
-  acquireTimeout: 30000,
-  timeout: 60000,
+  connectTimeout: 60000,
+  acquireTimeout: 60000,
+  timeout: 120000,
   multipleStatements: true,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
 };
 
 // Hàm kết nối với retry logic
