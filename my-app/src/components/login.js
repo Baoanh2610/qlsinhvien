@@ -88,7 +88,11 @@ const LoginPage = () => {
       console.log("Sending to backend:", payload);
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
 
@@ -110,12 +114,17 @@ const LoginPage = () => {
           setIsLogin(true);
         }
       } else {
-        alert(data.message);
+        console.error("Login error:", data.message);
+        alert(data.message || "Đăng nhập thất bại");
         setErrors({ general: data.message });
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        alert("Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet hoặc thử lại sau.");
+      } else {
+        alert("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+      }
       setErrors({ general: "Đã xảy ra lỗi. Vui lòng thử lại sau." });
     }
   };
