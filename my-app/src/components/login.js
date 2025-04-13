@@ -62,11 +62,12 @@ const LoginPage = () => {
 
     if (!validateForm()) return;
 
+    const baseUrl = process.env.REACT_APP_API_URL;
     const url = isAdmin
-      ? "http://localhost/Home_React_baoanh/backend/login.php"
+      ? `${baseUrl}/login`
       : isLogin
-        ? "http://localhost/Home_React_baoanh/backend/login.php"
-        : "http://localhost/Home_React_baoanh/backend/register.php";
+        ? `${baseUrl}/login`
+        : `${baseUrl}/register`;
 
     const payload = {
       email: formData.email,
@@ -109,7 +110,7 @@ const LoginPage = () => {
           setIsLogin(true);
         }
       } else {
-        alert(data.message); // Hiển thị thông báo lỗi từ backend
+        alert(data.message);
         setErrors({ general: data.message });
       }
     } catch (error) {

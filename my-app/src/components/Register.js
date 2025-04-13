@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from "react";
+import { toast } from 'react-toastify';
 
 function UserTable() {
   const [users, setUsers] = useState([]);
 
   // Gọi API lấy danh sách người dùng
   useEffect(() => {
-    fetch("http://localhost:5000/register")
+    fetch(`${process.env.REACT_APP_API_URL}/register`)
       .then((response) => response.json())
       .then((data) => setUsers(data))
-      .catch((error) => console.error("Lỗi tải dữ liệu:", error));
+      .catch((error) => {
+        console.error("Lỗi tải dữ liệu:", error);
+        toast.error("Không thể tải danh sách người dùng");
+      });
   }, []);
 
   // Hàm xử lý xóa người dùng
   const handleDelete = (id) => {
     if (window.confirm("Bạn có chắc muốn xóa không?")) {
-      fetch(`http://localhost:5000/register/${id}`, { method: "DELETE" })
+      fetch(`${process.env.REACT_APP_API_URL}/register/${id}`, { method: "DELETE" })
         .then(() => {
           setUsers(users.filter((user) => user.id !== id));
+          toast.success("Xóa người dùng thành công");
         })
-        .catch((error) => console.error("Lỗi xóa dữ liệu:", error));
+        .catch((error) => {
+          console.error("Lỗi xóa dữ liệu:", error);
+          toast.error("Không thể xóa người dùng");
+        });
     }
   };
 

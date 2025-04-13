@@ -25,7 +25,7 @@ const StudentSchedule = () => {
         setLoading(true);
         console.log('fetchStudentSessions started for MSSV:', user.student.mssv);
         try {
-            const url = `http://localhost/Home_React_baoanh/backend/get_student_sessions.php?mssv=${user.student.mssv}`;
+            const url = `${process.env.REACT_APP_API_URL}/get-student-sessions?mssv=${user.student.mssv}`;
             console.log('Fetching from:', url);
             const response = await fetch(url, {
                 method: 'GET',

@@ -56,7 +56,7 @@ const StudentGroup = () => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost/Home_React_baoanh/backend/get_student_group.php?mssv=${mssv}`,
+                `${process.env.REACT_APP_API_URL}/get-student-group?mssv=${mssv}`,
                 {
                     method: 'GET',
                     headers: { Accept: 'application/json' },
@@ -64,7 +64,7 @@ const StudentGroup = () => {
             );
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
-            console.log('API get_student_group response:', data);
+            console.log('API get-student-group response:', data);
             if (data.success && data.group) {
                 console.log('Group session ID:', data.group.session_id);
                 setGroup(data.group);
@@ -84,7 +84,7 @@ const StudentGroup = () => {
     const fetchNotifications = async (sessionId, studentMssv) => {
         try {
             const response = await fetch(
-                `http://localhost/Home_React_baoanh/backend/get_notifications.php?session_id=${sessionId}&student_mssv=${studentMssv}`
+                `${process.env.REACT_APP_API_URL}/get-notifications?session_id=${sessionId}&student_mssv=${studentMssv}`
             );
             const data = await response.json();
             console.log('Notifications API response:', data);
@@ -107,7 +107,7 @@ const StudentGroup = () => {
     const markAsRead = async (notificationId) => {
         const user = JSON.parse(localStorage.getItem('user'));
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/mark_notification_read.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/mark-notification-read`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

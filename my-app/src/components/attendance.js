@@ -10,7 +10,7 @@ const Attendance = () => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [selectedDate, setSelectedDate] = useState(''); // Thêm state cho ngày được chọn
+    const [selectedDate, setSelectedDate] = useState('');
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -30,12 +30,11 @@ const Attendance = () => {
             fetchStudentsBySession();
             fetchAttendance();
         }
-    }, [selectedSession, selectedDate]); // Thêm selectedDate vào dependency array
+    }, [selectedSession, selectedDate]);
 
     const fetchSessions = async () => {
-        // Giữ nguyên như cũ
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/get_sessions.php');
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-sessions`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (data.success) {
@@ -50,9 +49,8 @@ const Attendance = () => {
     };
 
     const fetchStudentsBySession = async () => {
-        // Giữ nguyên như cũ
         try {
-            const response = await fetch(`http://localhost/Home_React_baoanh/backend/get_students_by_session.php?session_id=${selectedSession}`);
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-students-by-session?session_id=${selectedSession}`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (data.success) {
@@ -74,7 +72,7 @@ const Attendance = () => {
                 return;
             }
 
-            const url = `${process.env.REACT_APP_API_URL}/get_attendance.php?session_id=${selectedSession}&date=${selectedDate}`;
+            const url = `${process.env.REACT_APP_API_URL}/get-attendance?session_id=${selectedSession}&date=${selectedDate}`;
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
@@ -98,14 +96,14 @@ const Attendance = () => {
         setLoading(true);
         try {
             const backendStatus = status === 'Có mặt' ? 'present' : 'absent';
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/attendance.php`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/attendance`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     session_id: selectedSession,
                     mssv: mssv,
                     status: backendStatus,
-                    date: selectedDate // Gửi thêm ngày được chọn
+                    date: selectedDate
                 })
             });
 

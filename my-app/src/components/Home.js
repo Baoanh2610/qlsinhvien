@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
+import { toast } from 'react-toastify';
 
 function Home() {
   const [students, setStudents] = useState([]);
@@ -17,7 +18,7 @@ function Home() {
   const fetchStudents = async () => {
     try {
       const response = await fetch(
-        "http://localhost/Home_React_baoanh/backend/get_students.php"
+        `${process.env.REACT_APP_API_URL}/get-students`
       );
       const data = await response.json();
       if (data.success) {
@@ -25,9 +26,11 @@ function Home() {
         setFilteredStudents(data.students);
       } else {
         console.error("Lỗi khi lấy dữ liệu:", data.message);
+        toast.error("Không thể tải danh sách sinh viên");
       }
     } catch (error) {
       console.error("Lỗi kết nối đến backend:", error);
+      toast.error("Không thể kết nối đến server");
     }
   };
 
@@ -40,7 +43,7 @@ function Home() {
     if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
       try {
         const response = await fetch(
-          "http://localhost/Home_React_baoanh/backend/delete_students.php",
+          `${process.env.REACT_APP_API_URL}/delete-student`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -50,13 +53,14 @@ function Home() {
 
         const result = await response.json();
         if (result.success) {
-          alert("Xóa sinh viên thành công");
+          toast.success("Xóa sinh viên thành công");
           fetchStudents();
         } else {
-          alert(result.message);
+          toast.error(result.message);
         }
       } catch (error) {
         console.error("Lỗi khi xóa sinh viên:", error);
+        toast.error("Không thể xóa sinh viên");
       }
     }
   };

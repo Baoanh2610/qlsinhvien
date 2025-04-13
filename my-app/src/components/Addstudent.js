@@ -30,7 +30,7 @@ function AddStudent() {
 
     try {
       const response = await fetch(
-        "http://localhost/Home_React_baoanh/backend/addstudent.php",
+        `${process.env.REACT_APP_API_URL}/add-student`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

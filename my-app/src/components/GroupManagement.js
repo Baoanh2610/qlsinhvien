@@ -22,7 +22,7 @@ const GroupManagement = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/class_sessions.php');
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (Array.isArray(data)) {
@@ -39,7 +39,7 @@ const GroupManagement = () => {
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
         try {
             const groupResponse = await fetch(
-                `http://localhost/Home_React_baoanh/backend/get_groups.php?session_id=${sessionId}`
+                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`
             );
             const groupData = await groupResponse.json();
             if (groupData.success && groupData.data.groups) {
@@ -60,7 +60,7 @@ const GroupManagement = () => {
         async (sessionId) => {
             try {
                 const response = await fetch(
-                    `http://localhost/Home_React_baoanh/backend/get_students_by_session.php?session_id=${sessionId}`
+                    `${process.env.REACT_APP_API_URL}/get-students-by-session?session_id=${sessionId}`
                 );
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
@@ -84,7 +84,7 @@ const GroupManagement = () => {
     const fetchGroups = useCallback(async (sessionId) => {
         try {
             const response = await fetch(
-                `http://localhost/Home_React_baoanh/backend/get_groups.php?session_id=${sessionId}`
+                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`
             );
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
@@ -114,7 +114,7 @@ const GroupManagement = () => {
             setLoading(true);
             try {
                 const response = await fetch(
-                    'http://localhost/Home_React_baoanh/backend/send_notification.php',
+                    `${process.env.REACT_APP_API_URL}/send-notification`,
                     {
                         method: 'POST',
                         headers: {
@@ -123,7 +123,7 @@ const GroupManagement = () => {
                         body: JSON.stringify({
                             session_id: selectedSession,
                             message: notificationMessage,
-                            created_by: 1, // Thay bằng ID giáo viên thực tế
+                            created_by: 1,
                         }),
                     }
                 );
@@ -221,7 +221,7 @@ const GroupManagement = () => {
             setLoading(true);
             try {
                 const response = await fetch(
-                    'http://localhost/Home_React_baoanh/backend/create_group.php',
+                    `${process.env.REACT_APP_API_URL}/create-group`,
                     {
                         method: 'POST',
                         headers: {
@@ -257,7 +257,7 @@ const GroupManagement = () => {
             setLoading(true);
             try {
                 const response = await fetch(
-                    'http://localhost/Home_React_baoanh/backend/group_management.php',
+                    `${process.env.REACT_APP_API_URL}/group-management`,
                     {
                         method: 'PUT',
                         headers: {
@@ -292,7 +292,7 @@ const GroupManagement = () => {
             setLoading(true);
             try {
                 const response = await fetch(
-                    `http://localhost/Home_React_baoanh/backend/delete_group.php?group_id=${groupId}`,
+                    `${process.env.REACT_APP_API_URL}/delete-group?group_id=${groupId}`,
                     { credentials: 'include' }
                 );
                 const data = await response.json();

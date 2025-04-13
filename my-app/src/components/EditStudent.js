@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./EditStudent.css"; // Import file CSS
+import { toast } from 'react-toastify';
 
 function EditStudent() {
   const { mssv } = useParams();
@@ -16,18 +16,21 @@ function EditStudent() {
 
   useEffect(() => {
     console.log("Đang gọi API với MSSV:", mssv);
-    fetch(`http://localhost/Home_React_baoanh/backend/get_mssv.php?mssv=${mssv}`)
+    fetch(`${process.env.REACT_APP_API_URL}/get-student?mssv=${mssv}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("Dữ liệu API trả về:", data);
         if (data.success) {
-          setStudent(data.student); // Sử dụng đúng object student
+          setStudent(data.student);
         } else {
-          alert("Không tìm thấy sinh viên!");
+          toast.error("Không tìm thấy sinh viên!");
           navigate("/");
         }
       })
-      .catch((error) => console.error("Lỗi lấy dữ liệu sinh viên:", error));
+      .catch((error) => {
+        console.error("Lỗi lấy dữ liệu sinh viên:", error);
+        toast.error("Không thể tải thông tin sinh viên");
+      });
   }, [mssv, navigate]);
 
   const handleChange = (e) => {
@@ -37,29 +40,27 @@ function EditStudent() {
   const handleUpdate = () => {
     console.log("Dữ liệu gửi đi:", student);
 
-    fetch("http://localhost/Home_React_baoanh/backend/editstudent.php", {
+    fetch(`${process.env.REACT_APP_API_URL}/edit-student`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(student),
     })
-      .then((res) => res.text()) // Đọc phản hồi dưới dạng text để debug
-      .then((text) => {
-        console.log("Phản hồi dạng text từ server:", text); // Kiểm tra nội dung trả về
-        return JSON.parse(text); // Chuyển đổi về JSON (nếu hợp lệ)
-      })
+      .then((res) => res.json())
       .then((data) => {
-        console.log("Phản hồi JSON từ server:", data);
+        console.log("Phản hồi từ server:", data);
         if (data.success) {
-          alert("Cập nhật thành công!");
+          toast.success("Cập nhật thành công!");
           navigate("/");
         } else {
-          alert("Cập nhật thất bại: " + data.message);
+          toast.error("Cập nhật thất bại: " + data.message);
         }
       })
-      .catch((error) => console.error("Lỗi khi cập nhật sinh viên:", error));
-
+      .catch((error) => {
+        console.error("Lỗi khi cập nhật sinh viên:", error);
+        toast.error("Không thể cập nhật thông tin sinh viên");
+      });
   };
 
   return (

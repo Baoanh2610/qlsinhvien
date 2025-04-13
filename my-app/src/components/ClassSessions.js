@@ -23,7 +23,7 @@ const ClassSessions = () => {
 
     const fetchSessions = async () => {
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/class_sessions.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' }
             });
@@ -39,7 +39,7 @@ const ClassSessions = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/get_unassigned_students.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-unassigned-students`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' }
             });
@@ -63,7 +63,7 @@ const ClassSessions = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/class_sessions.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -98,7 +98,7 @@ const ClassSessions = () => {
     const handleUpdateSession = async (sessionId, updatedStudents) => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/class_sessions.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -129,7 +129,7 @@ const ClassSessions = () => {
         if (window.confirm('Bạn có chắc chắn muốn xóa ca học này?')) {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost/Home_React_baoanh/backend/class_sessions.php?id=${id}`, {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions?id=${id}`, {
                     method: 'DELETE',
                     headers: { 'Accept': 'application/json' }
                 });

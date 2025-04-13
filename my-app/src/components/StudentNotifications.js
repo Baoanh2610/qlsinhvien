@@ -10,7 +10,7 @@ const StudentNotifications = ({ sessionId, studentMssv }) => {
         setLoading(true);
         try {
             const response = await fetch(
-                `http://localhost/Home_React_baoanh/backend/get_notifications.php?session_id=${sessionId}&student_mssv=${studentMssv}`
+                `${process.env.REACT_APP_API_URL}/get-notifications?session_id=${sessionId}&student_mssv=${studentMssv}`
             );
             const data = await response.json();
             if (data.success) {
@@ -33,7 +33,7 @@ const StudentNotifications = ({ sessionId, studentMssv }) => {
 
     const markAsRead = async (notificationId) => {
         try {
-            const response = await fetch('http://localhost/Home_React_baoanh/backend/mark_notification_read.php', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/mark-notification-read`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
