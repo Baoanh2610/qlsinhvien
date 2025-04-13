@@ -97,9 +97,7 @@ app.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
-    // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
     db.query(sql, [email, hashedPassword, role], (err, result) => {
       if (err) {
@@ -153,7 +151,6 @@ app.put("/register/:id", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Mã hóa mật khẩu mới nếu có
     let hashedPassword = password;
     if (password) {
       hashedPassword = await bcrypt.hash(password, 10);
@@ -215,7 +212,6 @@ app.post("/login", (req, res) => {
     });
   }
 
-  // Kiểm tra thông tin đăng nhập
   const sql = "SELECT * FROM users WHERE email = ? AND role = ?";
   db.query(sql, [email, role], async (err, results) => {
     if (err) {
@@ -235,12 +231,9 @@ app.post("/login", (req, res) => {
 
     const user = results[0];
 
-    // So sánh mật khẩu đã mã hóa
     try {
-      // Sử dụng thuật toán tương thích với PHP
       const isMatch = await bcrypt.compare(password, user.password.replace('$2y$', '$2a$'));
       if (isMatch) {
-        // Lưu thông tin user vào session
         req.session.user = {
           id: user.id,
           email: user.email,
@@ -391,8 +384,8 @@ app.get("/get-students-by-session", (req, res) => {
   const sql = `
     SELECT s.* 
     FROM students s
-    INNER JOIN session_enrollments se ON s.mssv = se.mssv
-    WHERE se.session_id = ?
+    INNER JOIN class_session_students css ON s.mssv = css.mssv
+    WHERE css.session_id = ?
     ORDER BY s.hoten ASC
   `;
 
@@ -450,7 +443,7 @@ app.post("/class-sessions", (req, res) => {
     // Thêm sinh viên vào ca học
     if (students && students.length > 0) {
       const values = students.map(mssv => [sessionId, mssv]);
-      const enrollSql = "INSERT INTO session_enrollments (session_id, mssv) VALUES ?";
+      const enrollSql = "INSERT INTO class_session_students (session_id, mssv) VALUES ?";
       db.query(enrollSql, [values], (err) => {
         if (err) {
           console.error("Lỗi khi thêm sinh viên vào ca học:", err);
@@ -475,7 +468,7 @@ app.put("/class-sessions", (req, res) => {
       message: "Thiếu id hoặc danh sách sinh viên không hợp lệ"
     });
   }
-  db.query("DELETE FROM session_enrollments WHERE session_id = ?", [id], (err) => {
+  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], (err) => {
     if (err) {
       console.error("Lỗi khi xóa sinh viên:", err);
       return res.status(500).json({
@@ -485,7 +478,7 @@ app.put("/class-sessions", (req, res) => {
     }
     if (students.length > 0) {
       const values = students.map(mssv => [id, mssv]);
-      db.query("INSERT INTO session_enrollments (session_id, mssv) VALUES ?", [values], (err) => {
+      db.query("INSERT INTO class_session_students (session_id, mssv) VALUES ?", [values], (err) => {
         if (err) {
           console.error("Lỗi khi thêm sinh viên:", err);
           return res.status(500).json({
@@ -516,7 +509,7 @@ app.delete("/class-sessions", (req, res) => {
       message: "Thiếu id"
     });
   }
-  db.query("DELETE FROM session_enrollments WHERE session_id = ?", [id], (err) => {
+  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], (err) => {
     if (err) {
       console.error("Lỗi khi xóa sinh viên:", err);
       return res.status(500).json({
@@ -574,7 +567,6 @@ app.get("/get-groups", (req, res) => {
       });
     }
 
-    // Format lại dữ liệu trả về
     const formattedResults = results.map(group => ({
       ...group,
       member_names: group.member_names ? group.member_names.split(',') : [],
@@ -601,7 +593,6 @@ app.post("/create-group", (req, res) => {
     }
     const groupId = result.insertId;
 
-    // Thêm sinh viên vào nhóm
     if (students && students.length > 0) {
       const values = students.map(mssv => [groupId, mssv]);
       const memberSql = "INSERT INTO group_members (group_id, mssv) VALUES ?";
@@ -668,8 +659,8 @@ app.get("/get-unassigned-students", (req, res) => {
   const sql = `
     SELECT s.* 
     FROM students s
-    LEFT JOIN session_enrollments se ON s.mssv = se.mssv
-    WHERE se.mssv IS NULL
+    LEFT JOIN class_session_students css ON s.mssv = css.mssv
+    WHERE css.mssv IS NULL
     ORDER BY s.hoten ASC
   `;
 
@@ -703,8 +694,8 @@ app.get("/get-session-students", (req, res) => {
   const sql = `
     SELECT s.* 
     FROM students s
-    INNER JOIN session_enrollments se ON s.mssv = se.mssv
-    WHERE se.session_id = ?
+    INNER JOIN class_session_students css ON s.mssv = css.mssv
+    WHERE css.session_id = ?
     ORDER BY s.hoten ASC
   `;
 
