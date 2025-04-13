@@ -19,13 +19,11 @@ app.use(cors({
   maxAge: 600
 }));
 
-// Xử lý preflight requests
 app.options('*', cors());
 
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Cấu hình session
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
@@ -37,13 +35,13 @@ app.use(session({
   }
 }));
 
-// Kết nối MySQL với cấu hình chi tiết
+// Cấu hình kết nối MySQL
 const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: 17714,
+  port: process.env.DB_PORT || 17714,
   ssl: {
     rejectUnauthorized: false,
     ca: process.env.DB_CA_CERT
@@ -59,10 +57,9 @@ const dbConfig = {
 // Hàm kết nối với retry logic
 function connectWithRetry(retryCount = 0) {
   const maxRetries = 5;
-
   const db = mysql.createConnection(dbConfig);
 
-  db.connect((err) => {
+  db.connect(err => {
     if (err) {
       console.error('Lỗi kết nối MySQL:', err);
       if (retryCount < maxRetries) {
@@ -70,14 +67,14 @@ function connectWithRetry(retryCount = 0) {
         console.log(`Thử kết nối lại sau ${delay / 1000} giây... (Lần thử: ${retryCount + 1}/${maxRetries})`);
         setTimeout(() => connectWithRetry(retryCount + 1), delay);
       } else {
-        console.error('Đã thử kết nối quá số lần cho phép. Vui lòng kiểm tra cấu hình database.');
+        console.error('Đã thử kết nối quá số lần cho phép.');
       }
     } else {
       console.log('Kết nối MySQL thành công!');
     }
   });
 
-  db.on('error', (err) => {
+  db.on('error', err => {
     console.error('Lỗi MySQL:', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
       console.log('Kết nối bị mất, thử kết nối lại...');
@@ -102,16 +99,15 @@ app.post("/register", async (req, res) => {
     db.query(sql, [email, hashedPassword, role], (err, result) => {
       if (err) {
         console.error("Lỗi khi đăng ký:", err);
-        res.status(500).json({
+        return res.status(500).json({
           success: false,
           message: "Lỗi khi đăng ký"
         });
-      } else {
-        res.json({
-          success: true,
-          message: "Đăng ký thành công!"
-        });
       }
+      res.json({
+        success: true,
+        message: "Đăng ký thành công!"
+      });
     });
   } catch (error) {
     console.error("Lỗi khi mã hóa mật khẩu:", error);
@@ -126,10 +122,10 @@ app.post("/register", async (req, res) => {
 app.get("/register", (req, res) => {
   db.query("SELECT * FROM users", (err, results) => {
     if (err) {
-      res.status(500).json({ message: "Lỗi khi tải danh sách" });
-    } else {
-      res.json(results);
+      console.error("Lỗi khi lấy danh sách người dùng:", err);
+      return res.status(500).json({ message: "Lỗi khi tải danh sách" });
     }
+    res.json(results);
   });
 });
 
@@ -138,14 +134,14 @@ app.delete("/register/:id", (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
     if (err) {
-      res.status(500).json({ message: "Lỗi khi xóa" });
-    } else {
-      res.json({ message: "Xóa thành công!" });
+      console.error("Lỗi khi xóa người dùng:", err);
+      return res.status(500).json({ message: "Lỗi khi xóa" });
     }
+    res.json({ message: "Xóa thành công!" });
   });
 });
 
-// API cập nhật thông tin người dùng
+// API cập nhật người dùng
 app.put("/register/:id", async (req, res) => {
   const { id } = req.params;
   const { email, password } = req.body;
@@ -161,17 +157,16 @@ app.put("/register/:id", async (req, res) => {
       [email, hashedPassword, id],
       (err, result) => {
         if (err) {
-          console.error("Lỗi khi cập nhật:", err);
-          res.status(500).json({
+          console.error("Lỗi khi cập nhật người dùng:", err);
+          return res.status(500).json({
             success: false,
             message: "Lỗi khi cập nhật"
           });
-        } else {
-          res.json({
-            success: true,
-            message: "Cập nhật thành công!"
-          });
         }
+        res.json({
+          success: true,
+          message: "Cập nhật thành công!"
+        });
       }
     );
   } catch (error) {
@@ -391,13 +386,14 @@ app.get("/get-students-by-session", (req, res) => {
 
   db.query(sql, [session_id], (err, results) => {
     if (err) {
-      console.error("Lỗi khi lấy danh sách sinh viên:", err);
+      console.error(`Lỗi khi lấy sinh viên cho session ${session_id}:`, err);
       return res.status(500).json({
         success: false,
         message: "Lỗi máy chủ"
       });
     }
 
+    console.log(`Kết quả sinh viên cho session ${session_id}:`, results);
     res.json({
       success: true,
       data: {
@@ -420,6 +416,7 @@ app.get("/class-sessions", (req, res) => {
       });
     }
 
+    console.log("Danh sách ca học:", results);
     res.json({
       success: true,
       sessions: results
@@ -429,6 +426,14 @@ app.get("/class-sessions", (req, res) => {
 
 app.post("/class-sessions", (req, res) => {
   const { date, time_slot, room, students } = req.body;
+
+  if (!date || !time_slot || !room) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin ca học"
+    });
+  }
+
   const sql = "INSERT INTO class_sessions (date, time_slot, room) VALUES (?, ?, ?)";
   db.query(sql, [date, time_slot, room], (err, result) => {
     if (err) {
@@ -440,11 +445,10 @@ app.post("/class-sessions", (req, res) => {
     }
     const sessionId = result.insertId;
 
-    // Thêm sinh viên vào ca học
     if (students && students.length > 0) {
       const values = students.map(mssv => [sessionId, mssv]);
       const enrollSql = "INSERT INTO class_session_students (session_id, mssv) VALUES ?";
-      db.query(enrollSql, [values], (err) => {
+      db.query(enrollSql, [values], err => {
         if (err) {
           console.error("Lỗi khi thêm sinh viên vào ca học:", err);
         }
@@ -454,33 +458,36 @@ app.post("/class-sessions", (req, res) => {
     res.json({
       success: true,
       message: "Thêm ca học thành công",
-      sessionId: sessionId
+      sessionId
     });
   });
 });
 
-// API cập nhật ca học
 app.put("/class-sessions", (req, res) => {
   const { id, students } = req.body;
+
   if (!id || !Array.isArray(students)) {
     return res.status(400).json({
       success: false,
       message: "Thiếu id hoặc danh sách sinh viên không hợp lệ"
     });
   }
-  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], (err) => {
+
+  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], err => {
     if (err) {
-      console.error("Lỗi khi xóa sinh viên:", err);
+      console.error("Lỗi khi xóa sinh viên khỏi ca học:", err);
       return res.status(500).json({
         success: false,
         message: "Lỗi máy chủ"
       });
     }
+
     if (students.length > 0) {
       const values = students.map(mssv => [id, mssv]);
-      db.query("INSERT INTO class_session_students (session_id, mssv) VALUES ?", [values], (err) => {
+      const enrollSql = "INSERT INTO class_session_students (session_id, mssv) VALUES ?";
+      db.query(enrollSql, [values], err => {
         if (err) {
-          console.error("Lỗi khi thêm sinh viên:", err);
+          console.error("Lỗi khi thêm sinh viên vào ca học:", err);
           return res.status(500).json({
             success: false,
             message: "Lỗi máy chủ"
@@ -500,24 +507,26 @@ app.put("/class-sessions", (req, res) => {
   });
 });
 
-// API xóa ca học
 app.delete("/class-sessions", (req, res) => {
   const { id } = req.query;
+
   if (!id) {
     return res.status(400).json({
       success: false,
       message: "Thiếu id"
     });
   }
-  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], (err) => {
+
+  db.query("DELETE FROM class_session_students WHERE session_id = ?", [id], err => {
     if (err) {
-      console.error("Lỗi khi xóa sinh viên:", err);
+      console.error("Lỗi khi xóa sinh viên khỏi ca học:", err);
       return res.status(500).json({
         success: false,
         message: "Lỗi máy chủ"
       });
     }
-    db.query("DELETE FROM class_sessions WHERE id = ?", [id], (err) => {
+
+    db.query("DELETE FROM class_sessions WHERE id = ?", [id], err => {
       if (err) {
         console.error("Lỗi khi xóa ca học:", err);
         return res.status(500).json({
@@ -529,6 +538,69 @@ app.delete("/class-sessions", (req, res) => {
         success: true,
         message: "Xóa ca học thành công"
       });
+    });
+  });
+});
+
+// API lấy danh sách sinh viên chưa được phân ca học
+app.get("/get-unassigned-students", (req, res) => {
+  const sql = `
+    SELECT s.* 
+    FROM students s
+    LEFT JOIN class_session_students css ON s.mssv = css.mssv
+    WHERE css.mssv IS NULL
+    ORDER BY s.hoten ASC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách sinh viên chưa phân ca:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    console.log("Sinh viên chưa phân ca:", results);
+    res.json({
+      success: true,
+      students: results
+    });
+  });
+});
+
+// API lấy danh sách sinh viên trong ca học
+app.get("/get-session-students", (req, res) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin session_id"
+    });
+  }
+
+  const sql = `
+    SELECT s.* 
+    FROM students s
+    INNER JOIN class_session_students css ON s.mssv = css.mssv
+    WHERE css.session_id = ?
+    ORDER BY s.hoten ASC
+  `;
+
+  db.query(sql, [session_id], (err, results) => {
+    if (err) {
+      console.error(`Lỗi khi lấy sinh viên cho session ${session_id}:`, err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    console.log(`Kết quả sinh viên cho session ${session_id}:`, results);
+    res.json({
+      success: true,
+      students: results
     });
   });
 });
@@ -582,6 +654,14 @@ app.get("/get-groups", (req, res) => {
 
 app.post("/create-group", (req, res) => {
   const { name, session_id, students } = req.body;
+
+  if (!name || !session_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin tên nhóm hoặc session_id"
+    });
+  }
+
   const sql = "INSERT INTO student_groups (name, session_id) VALUES (?, ?)";
   db.query(sql, [name, session_id], (err, result) => {
     if (err) {
@@ -596,7 +676,7 @@ app.post("/create-group", (req, res) => {
     if (students && students.length > 0) {
       const values = students.map(mssv => [groupId, mssv]);
       const memberSql = "INSERT INTO group_members (group_id, mssv) VALUES ?";
-      db.query(memberSql, [values], (err) => {
+      db.query(memberSql, [values], err => {
         if (err) {
           console.error("Lỗi khi thêm sinh viên vào nhóm:", err);
         }
@@ -606,7 +686,7 @@ app.post("/create-group", (req, res) => {
     res.json({
       success: true,
       message: "Tạo nhóm thành công",
-      groupId: groupId
+      groupId
     });
   });
 });
@@ -614,6 +694,14 @@ app.post("/create-group", (req, res) => {
 // API thông báo
 app.get("/get-notifications", (req, res) => {
   const { session_id, student_mssv } = req.query;
+
+  if (!session_id || !student_mssv) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin session_id hoặc student_mssv"
+    });
+  }
+
   const sql = `
     SELECT n.*, ns.is_read 
     FROM notifications n
@@ -621,6 +709,7 @@ app.get("/get-notifications", (req, res) => {
     WHERE n.session_id = ?
     ORDER BY n.created_at DESC
   `;
+
   db.query(sql, [student_mssv, session_id], (err, results) => {
     if (err) {
       console.error("Lỗi khi lấy thông báo:", err);
@@ -638,8 +727,20 @@ app.get("/get-notifications", (req, res) => {
 
 app.post("/mark-notification-read", (req, res) => {
   const { notification_id, student_mssv } = req.body;
-  const sql = "INSERT INTO notification_status (notification_id, mssv, is_read) VALUES (?, ?, 1) ON DUPLICATE KEY UPDATE is_read = 1";
-  db.query(sql, [notification_id, student_mssv], (err) => {
+
+  if (!notification_id || !student_mssv) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin notification_id hoặc student_mssv"
+    });
+  }
+
+  const sql = `
+    INSERT INTO notification_status (notification_id, mssv, is_read) 
+    VALUES (?, ?, 1) 
+    ON DUPLICATE KEY UPDATE is_read = 1
+  `;
+  db.query(sql, [notification_id, student_mssv], err => {
     if (err) {
       console.error("Lỗi khi đánh dấu đã đọc:", err);
       return res.status(500).json({
@@ -650,67 +751,6 @@ app.post("/mark-notification-read", (req, res) => {
     res.json({
       success: true,
       message: "Đánh dấu đã đọc thành công"
-    });
-  });
-});
-
-// API lấy danh sách sinh viên chưa được phân ca học
-app.get("/get-unassigned-students", (req, res) => {
-  const sql = `
-    SELECT s.* 
-    FROM students s
-    LEFT JOIN class_session_students css ON s.mssv = css.mssv
-    WHERE css.mssv IS NULL
-    ORDER BY s.hoten ASC
-  `;
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Lỗi khi lấy danh sách sinh viên:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi máy chủ"
-      });
-    }
-
-    res.json({
-      success: true,
-      students: results
-    });
-  });
-});
-
-// API lấy danh sách sinh viên trong ca học
-app.get("/get-session-students", (req, res) => {
-  const { session_id } = req.query;
-
-  if (!session_id) {
-    return res.status(400).json({
-      success: false,
-      message: "Thiếu thông tin session_id"
-    });
-  }
-
-  const sql = `
-    SELECT s.* 
-    FROM students s
-    INNER JOIN class_session_students css ON s.mssv = css.mssv
-    WHERE css.session_id = ?
-    ORDER BY s.hoten ASC
-  `;
-
-  db.query(sql, [session_id], (err, results) => {
-    if (err) {
-      console.error("Lỗi khi lấy danh sách sinh viên:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi máy chủ"
-      });
-    }
-
-    res.json({
-      success: true,
-      students: results
     });
   });
 });
