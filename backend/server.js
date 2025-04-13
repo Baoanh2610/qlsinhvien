@@ -416,15 +416,7 @@ app.get("/get-students-by-session", (req, res) => {
 
 // API quản lý ca học
 app.get("/class-sessions", (req, res) => {
-  const sql = `
-    SELECT 
-      cs.*,
-      COUNT(se.mssv) as student_count
-    FROM class_sessions cs
-    LEFT JOIN session_enrollments se ON cs.id = se.session_id
-    GROUP BY cs.id
-    ORDER BY cs.date DESC, cs.time_slot ASC
-  `;
+  const sql = "SELECT * FROM class_sessions ORDER BY date DESC, time_slot ASC";
 
   db.query(sql, (err, results) => {
     if (err) {
@@ -437,7 +429,7 @@ app.get("/class-sessions", (req, res) => {
 
     res.json({
       success: true,
-      data: results
+      sessions: results
     });
   });
 });
