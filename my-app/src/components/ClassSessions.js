@@ -318,8 +318,8 @@ const ClassSessions = () => {
                                 <td>{session.room}</td>
                                 <td>
                                     <ul className="student-list">
-                                        {sessionStudents[session.id] ? (
-                                            Array.isArray(sessionStudents[session.id]) ? (
+                                        {sessionStudents[session.id] !== undefined ? (
+                                            Array.isArray(sessionStudents[session.id]) && sessionStudents[session.id].length > 0 ? (
                                                 sessionStudents[session.id].map((student, index) => (
                                                     <li key={index}>
                                                         {student.hoten} - {student.mssv}
