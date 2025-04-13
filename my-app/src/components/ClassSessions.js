@@ -39,10 +39,7 @@ const ClassSessions = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-unassigned-students`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-unassigned-students`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (data.success && Array.isArray(data.students)) {
@@ -289,13 +286,13 @@ const ClassSessions = () => {
                                 <td>{session.room}</td>
                                 <td>
                                     <ul className="student-list">
-                                        {Array.isArray(session.students) && session.students.map((student, index) => (
+                                        {session.students && Array.isArray(session.students) && session.students.map((student, index) => (
                                             <li key={index}>
-                                                {student}
+                                                {student.hoten} - {student.mssv}
                                                 {editingSession && editingSession.id === session.id && editMode === 'remove' && (
                                                     <span
                                                         className="remove-member"
-                                                        onClick={() => handleRemoveMember(session.id, session.student_mssvs[index])}
+                                                        onClick={() => handleRemoveMember(session.id, student.mssv)}
                                                     >
                                                         ✗
                                                     </span>
