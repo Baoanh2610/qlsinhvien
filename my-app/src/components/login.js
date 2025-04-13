@@ -1,6 +1,8 @@
 // Login.js
 import React, { useState } from "react";
 import "./login.css";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +18,8 @@ const LoginPage = () => {
     ngaysinh: "",
   });
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +63,8 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({});
+    setLoading(true);
 
     if (!validateForm()) return;
 
@@ -86,26 +92,25 @@ const LoginPage = () => {
 
     try {
       console.log("Sending to backend:", payload);
-      const response = await fetch(url, {
-        method: "POST",
+      const response = await axios.post(url, payload, {
+        timeout: 10000, // 10 giây timeout
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
         credentials: "include",
-        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = response.data;
       console.log("Response from backend:", data);
 
       if (data.success) {
         if (isAdmin || isLogin) {
           localStorage.setItem("user", JSON.stringify(data.user));
           if (data.user.role === "student") {
-            window.location.href = "/student/home";
+            navigate("/student/dashboard");
           } else if (data.user.role === "admin") {
-            window.location.href = "/home";
+            navigate("/admin/dashboard");
           } else {
             alert("Vai trò không hợp lệ!");
           }
@@ -120,12 +125,15 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      if (error.response) {
+        setErrors({ general: error.response.data.message || "Đăng nhập thất bại" });
+      } else if (error.request) {
         alert("Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet hoặc thử lại sau.");
       } else {
-        alert("Đã xảy ra lỗi. Vui lòng thử lại sau.");
+        alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
       }
-      setErrors({ general: "Đã xảy ra lỗi. Vui lòng thử lại sau." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -168,6 +176,7 @@ const LoginPage = () => {
         <h1 className="form-title">
           {isAdmin ? "Login Admin" : isLogin ? "Sign In" : "Sign Up"}
         </h1>
+        {errors.general && <div className="error-message">{errors.general}</div>}
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <input
@@ -271,8 +280,8 @@ const LoginPage = () => {
               </a>
             </div>
           )}
-          <button type="submit" className="submit-button">
-            {isAdmin ? "Login" : isLogin ? "Sign In" : "Create Account"}
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? 'Đang đăng nhập...' : isAdmin ? "Login" : isLogin ? "Sign In" : "Create Account"}
           </button>
         </form>
         {!isAdmin && (
