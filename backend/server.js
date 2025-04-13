@@ -377,9 +377,55 @@ app.delete("/delete-student", (req, res) => {
   });
 });
 
+// API lấy danh sách sinh viên theo ca học
+app.get("/get-students-by-session", (req, res) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin session_id"
+    });
+  }
+
+  const sql = `
+    SELECT s.* 
+    FROM students s
+    INNER JOIN session_enrollments se ON s.mssv = se.mssv
+    WHERE se.session_id = ?
+    ORDER BY s.hoten ASC
+  `;
+
+  db.query(sql, [session_id], (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        students: results
+      }
+    });
+  });
+});
+
 // API quản lý ca học
 app.get("/class-sessions", (req, res) => {
-  const sql = "SELECT * FROM class_sessions ORDER BY date DESC, time_slot ASC";
+  const sql = `
+    SELECT 
+      cs.*,
+      COUNT(se.mssv) as student_count
+    FROM class_sessions cs
+    LEFT JOIN session_enrollments se ON cs.id = se.session_id
+    GROUP BY cs.id
+    ORDER BY cs.date DESC, cs.time_slot ASC
+  `;
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Lỗi khi lấy danh sách ca học:", err);
@@ -388,9 +434,10 @@ app.get("/class-sessions", (req, res) => {
         message: "Lỗi máy chủ"
       });
     }
+
     res.json({
       success: true,
-      sessions: results
+      data: results
     });
   });
 });
@@ -429,8 +476,30 @@ app.post("/class-sessions", (req, res) => {
 
 // API quản lý nhóm
 app.get("/get-groups", (req, res) => {
-  const sql = "SELECT g.*, COUNT(gm.mssv) as member_count FROM student_groups g LEFT JOIN group_members gm ON g.id = gm.group_id GROUP BY g.id";
-  db.query(sql, (err, results) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin session_id"
+    });
+  }
+
+  const sql = `
+    SELECT 
+      g.*, 
+      COUNT(gm.mssv) as member_count,
+      GROUP_CONCAT(s.hoten) as member_names,
+      GROUP_CONCAT(s.mssv) as member_mssvs
+    FROM student_groups g 
+    LEFT JOIN group_members gm ON g.id = gm.group_id
+    LEFT JOIN students s ON gm.mssv = s.mssv
+    WHERE g.session_id = ?
+    GROUP BY g.id
+    ORDER BY g.name ASC
+  `;
+
+  db.query(sql, [session_id], (err, results) => {
     if (err) {
       console.error("Lỗi khi lấy danh sách nhóm:", err);
       return res.status(500).json({
@@ -438,9 +507,17 @@ app.get("/get-groups", (req, res) => {
         message: "Lỗi máy chủ"
       });
     }
+
+    // Format lại dữ liệu trả về
+    const formattedResults = results.map(group => ({
+      ...group,
+      member_names: group.member_names ? group.member_names.split(',') : [],
+      member_mssvs: group.member_mssvs ? group.member_mssvs.split(',') : []
+    }));
+
     res.json({
       success: true,
-      groups: results
+      groups: formattedResults
     });
   });
 });
