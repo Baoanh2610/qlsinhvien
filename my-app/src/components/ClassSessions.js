@@ -111,6 +111,15 @@ const ClassSessions = () => {
         }
     }, []);
 
+    useEffect(() => {
+        if (sessions.length > 0) {
+            // Lấy danh sách sinh viên cho từng session
+            sessions.forEach(session => {
+                fetchSessionStudents(session.id);
+            });
+        }
+    }, [sessions, fetchSessionStudents]);
+
     const handleAddSession = async e => {
         e.preventDefault();
         setLoading(true);
