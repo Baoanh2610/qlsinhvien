@@ -10,11 +10,10 @@ const app = express();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: [
-    'https://[TÊN_PROJECT_CỦA_BẠN].vercel.app',
-    'http://localhost:3000'
-  ],
-  credentials: true
+  origin: 'https://frontend-zw3r.onrender.com', // Thay đổi thành URL frontend của bạn
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json());
@@ -27,7 +26,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     secure: true,
-    sameSite: 'none'
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000 // 1 ngày
   }
 }));
 
