@@ -14,9 +14,14 @@ const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  connectTimeout: 10000, // 10 seconds
-  acquireTimeout: 10000, // 10 seconds
-  timeout: 60000, // 60 seconds
+  port: 17714, // Port từ Aiven
+  ssl: {
+    rejectUnauthorized: false,
+    ca: process.env.DB_CA_CERT // Thêm CA certificate nếu có
+  },
+  connectTimeout: 30000,
+  acquireTimeout: 30000,
+  timeout: 60000,
   multipleStatements: true,
   waitForConnections: true,
   connectionLimit: 10,
@@ -24,20 +29,26 @@ const dbConfig = {
 };
 
 // Hàm kết nối với retry logic
-function connectWithRetry() {
+function connectWithRetry(retryCount = 0) {
+  const maxRetries = 5;
+
   const db = mysql.createConnection(dbConfig);
 
   db.connect((err) => {
     if (err) {
       console.error('Lỗi kết nối MySQL:', err);
-      console.log('Thử kết nối lại sau 5 giây...');
-      setTimeout(connectWithRetry, 5000);
+      if (retryCount < maxRetries) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`Thử kết nối lại sau ${delay / 1000} giây... (Lần thử: ${retryCount + 1}/${maxRetries})`);
+        setTimeout(() => connectWithRetry(retryCount + 1), delay);
+      } else {
+        console.error('Đã thử kết nối quá số lần cho phép. Vui lòng kiểm tra cấu hình database.');
+      }
     } else {
       console.log('Kết nối MySQL thành công!');
     }
   });
 
-  // Xử lý lỗi kết nối
   db.on('error', (err) => {
     console.error('Lỗi MySQL:', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
