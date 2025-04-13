@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './ClassSessions.css';
 import { toast } from 'react-toastify';
 
@@ -21,21 +21,21 @@ const ClassSessions = () => {
         fetchStudents();
     }, []);
 
-    const fetchSessions = async () => {
+    const fetchSessions = useCallback(async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
-            setSessions(data);
+            if (data.success && data.sessions) {
+                setSessions(data.sessions);
+            } else {
+                toast.error('Dữ liệu không đúng định dạng');
+            }
         } catch (error) {
-            console.error('Lỗi khi lấy danh sách ca học:', error);
-            setSessions([]);
+            console.error('Error fetching sessions:', error);
             toast.error('Không thể tải danh sách ca học');
         }
-    };
+    }, []);
 
     const fetchStudents = async () => {
         try {
