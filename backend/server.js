@@ -237,7 +237,8 @@ app.post("/login", (req, res) => {
 
     // So sánh mật khẩu đã mã hóa
     try {
-      const isMatch = await bcrypt.compare(password, user.password);
+      // Sử dụng thuật toán tương thích với PHP
+      const isMatch = await bcrypt.compare(password, user.password.replace('$2y$', '$2a$'));
       if (isMatch) {
         // Lưu thông tin user vào session
         req.session.user = {
