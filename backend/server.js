@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 require('dotenv').config();
 
 const app = express();
@@ -174,8 +175,8 @@ app.post("/login", (req, res) => {
   }
 
   // Kiểm tra thông tin đăng nhập
-  const sql = "SELECT * FROM users WHERE email = ? AND password = ? AND role = ?";
-  db.query(sql, [email, password, role], (err, results) => {
+  const sql = "SELECT * FROM users WHERE email = ? AND role = ?";
+  db.query(sql, [email, role], async (err, results) => {
     if (err) {
       console.error("Lỗi khi đăng nhập:", err);
       return res.status(500).json({
@@ -187,28 +188,45 @@ app.post("/login", (req, res) => {
     if (results.length === 0) {
       return res.status(401).json({
         success: false,
-        message: "Email hoặc mật khẩu không đúng"
+        message: "Email hoặc vai trò không đúng"
       });
     }
 
     const user = results[0];
 
-    // Lưu thông tin user vào session
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role
-    };
+    // So sánh mật khẩu đã mã hóa
+    try {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        // Lưu thông tin user vào session
+        req.session.user = {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        };
 
-    res.json({
-      success: true,
-      message: "Đăng nhập thành công",
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role
+        res.json({
+          success: true,
+          message: "Đăng nhập thành công",
+          user: {
+            id: user.id,
+            email: user.email,
+            role: user.role
+          }
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "Mật khẩu không đúng"
+        });
       }
-    });
+    } catch (error) {
+      console.error("Lỗi khi so sánh mật khẩu:", error);
+      res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
   });
 });
 
