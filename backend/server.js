@@ -615,6 +615,41 @@ app.get("/get-unassigned-students", (req, res) => {
   });
 });
 
+// API lấy danh sách sinh viên trong ca học
+app.get("/get-session-students", (req, res) => {
+  const { session_id } = req.query;
+
+  if (!session_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin session_id"
+    });
+  }
+
+  const sql = `
+    SELECT s.* 
+    FROM students s
+    INNER JOIN session_enrollments se ON s.mssv = se.mssv
+    WHERE se.session_id = ?
+    ORDER BY s.hoten ASC
+  `;
+
+  db.query(sql, [session_id], (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    res.json({
+      success: true,
+      students: results
+    });
+  });
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
