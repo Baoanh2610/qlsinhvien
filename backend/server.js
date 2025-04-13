@@ -93,16 +93,35 @@ function connectWithRetry(retryCount = 0) {
 const db = connectWithRetry();
 
 // API đăng ký người dùng
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
   const { email, password, role } = req.body;
-  const sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
-  db.query(sql, [email, password, role], (err, result) => {
-    if (err) {
-      res.status(500).json({ message: "Lỗi khi đăng ký" });
-    } else {
-      res.json({ message: "Đăng ký thành công!" });
-    }
-  });
+
+  try {
+    // Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const sql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+    db.query(sql, [email, hashedPassword, role], (err, result) => {
+      if (err) {
+        console.error("Lỗi khi đăng ký:", err);
+        res.status(500).json({
+          success: false,
+          message: "Lỗi khi đăng ký"
+        });
+      } else {
+        res.json({
+          success: true,
+          message: "Đăng ký thành công!"
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi khi mã hóa mật khẩu:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ"
+    });
+  }
 });
 
 // API lấy danh sách người dùng
@@ -129,20 +148,42 @@ app.delete("/register/:id", (req, res) => {
 });
 
 // API cập nhật thông tin người dùng
-app.put("/register/:id", (req, res) => {
+app.put("/register/:id", async (req, res) => {
   const { id } = req.params;
   const { email, password } = req.body;
-  db.query(
-    "UPDATE users SET email = ?, password = ? WHERE id = ?",
-    [email, password, id],
-    (err, result) => {
-      if (err) {
-        res.status(500).json({ message: "Lỗi khi cập nhật" });
-      } else {
-        res.json({ message: "Cập nhật thành công!" });
-      }
+
+  try {
+    // Mã hóa mật khẩu mới nếu có
+    let hashedPassword = password;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
     }
-  );
+
+    db.query(
+      "UPDATE users SET email = ?, password = ? WHERE id = ?",
+      [email, hashedPassword, id],
+      (err, result) => {
+        if (err) {
+          console.error("Lỗi khi cập nhật:", err);
+          res.status(500).json({
+            success: false,
+            message: "Lỗi khi cập nhật"
+          });
+        } else {
+          res.json({
+            success: true,
+            message: "Cập nhật thành công!"
+          });
+        }
+      }
+    );
+  } catch (error) {
+    console.error("Lỗi khi mã hóa mật khẩu:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ"
+    });
+  }
 });
 
 // API thêm sinh viên
