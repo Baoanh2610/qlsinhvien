@@ -144,8 +144,12 @@ function Home() {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/delete-student`, { mssv });
 
       if (response.data.message) {
-        toast.success(response.data.message);
-        fetchStudents();
+        // Cập nhật danh sách sinh viên
+        setStudents(students.filter(student => student.mssv !== mssv));
+        setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
+
+        // Hiển thị thông báo thành công
+        toast.success("Xóa sinh viên thành công!");
       } else {
         throw new Error(response.data.error || "Không thể xóa sinh viên");
       }
