@@ -113,10 +113,25 @@ function Home() {
     setFilteredStudents(filtered);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleAddStudent = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Kiểm tra dữ liệu trước khi gửi
+    if (!formData.mssv || !formData.hoten || !formData.khoa || !formData.lop || !formData.ngaysinh) {
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      setLoading(false);
+      return;
+    }
 
     try {
       console.log('Đang gửi request thêm sinh viên:', formData);
@@ -134,16 +149,11 @@ function Home() {
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
       console.log('Response từ server:', result);
 
-      if (result.message) {
-        toast.success(result.message);
+      if (response.ok) {
+        toast.success(result.message || "Thêm sinh viên thành công");
         setShowAddForm(false);
         setFormData({
           mssv: "",
@@ -153,6 +163,8 @@ function Home() {
           ngaysinh: ""
         });
         fetchStudents();
+      } else {
+        throw new Error(result.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
       console.error('Chi tiết lỗi:', error);
@@ -232,6 +244,59 @@ function Home() {
           ))}
         </tbody>
       </table>
+
+      {showAddForm && (
+        <div className="add-form">
+          <h3>Thêm sinh viên mới</h3>
+          <form onSubmit={handleAddStudent}>
+            <input
+              type="text"
+              name="mssv"
+              placeholder="MSSV"
+              value={formData.mssv}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="hoten"
+              placeholder="Họ tên"
+              value={formData.hoten}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="khoa"
+              placeholder="Khoa"
+              value={formData.khoa}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="text"
+              name="lop"
+              placeholder="Lớp"
+              value={formData.lop}
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="date"
+              name="ngaysinh"
+              value={formData.ngaysinh}
+              onChange={handleInputChange}
+              required
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? "Đang thêm..." : "Thêm"}
+            </button>
+            <button type="button" onClick={() => setShowAddForm(false)}>
+              Hủy
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
