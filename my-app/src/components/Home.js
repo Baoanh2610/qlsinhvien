@@ -45,37 +45,40 @@ function Home() {
       try {
         console.log('Đang gửi request xóa sinh viên:', mssv);
         console.log('API URL:', `${process.env.REACT_APP_API_URL}/delete-student`);
-        console.log('Phương thức:', 'DELETE');
 
-        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-student`, {
-          data: { mssv },
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/delete-student`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({ mssv }),
+            credentials: 'include'
           }
-        });
+        );
 
-        console.log('Response từ server:', response.data);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        if (response.data.success) {
+        const result = await response.json();
+        console.log('Response từ server:', result);
+
+        if (result.success) {
           setStudents(students.filter(student => student.mssv !== mssv));
           setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
           toast.success("Xóa sinh viên thành công");
         } else {
-          toast.error(response.data.message || "Không thể xóa sinh viên");
+          toast.error(result.message || "Không thể xóa sinh viên");
         }
       } catch (error) {
         console.error('Chi tiết lỗi:', {
           message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          headers: error.response?.headers
+          status: error.status
         });
-        if (error.response && error.response.headers['content-type']?.includes('text/html')) {
-          toast.error("Lỗi server: Nhận được phản hồi HTML thay vì JSON. Kiểm tra endpoint backend.");
-        } else {
-          toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
-        }
+        toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
       }
     }
   };
