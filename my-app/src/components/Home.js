@@ -113,18 +113,7 @@ function Home() {
         ngaysinh: student.ngaysinh
       };
 
-      console.log('Dữ liệu sinh viên trước khi gửi:', requestData);
-
-      // Đảm bảo sử dụng URL đầy đủ
-      const url = `${process.env.REACT_APP_API_URL}/add-student`;
-      console.log('API URL:', url);
-
-      const response = await axios.post(url, requestData, {
-        withCredentials: true
-      });
-
-      console.log('Response status:', response.status);
-      console.log('Response data:', response.data);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/add-student`, requestData);
 
       if (response.status === 200) {
         toast.success(response.data.message || "Thêm sinh viên thành công");
@@ -132,15 +121,14 @@ function Home() {
         setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
         // Ẩn form
         setShowAddForm(false);
-
-        // Chuyển hướng về trang Home (refresh lại component)
-        navigate('/', { replace: true });
+        // Chuyển hướng về trang Home
+        navigate('/home');
       } else {
         throw new Error(response.data.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
       console.error('Lỗi khi thêm sinh viên:', error);
-      toast.error(error.response?.data?.error || error.message || "Không thể thêm sinh viên");
+      toast.error(error.response?.data?.error || "Không thể thêm sinh viên");
     } finally {
       setLoading(false);
     }
@@ -153,32 +141,22 @@ function Home() {
     }
 
     try {
-      setLoading(true);
-      const url = `${process.env.REACT_APP_API_URL}/delete-student`;
-      const response = await axios.post(url, { mssv }, {
-        withCredentials: true
-      });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/delete-student`, { mssv });
 
-      if (response.data.success || response.status === 200) {
-        // Hiển thị thông báo thành công
-        toast.success(response.data.message || "Xóa sinh viên thành công!");
-
-        // Cập nhật state trực tiếp mà không gọi API
+      if (response.data.message) {
+        // Cập nhật danh sách sinh viên ngay lập tức
         const updatedStudents = students.filter(student => student.mssv !== mssv);
         setStudents(updatedStudents);
+        setFilteredStudents(updatedStudents);
 
-        // Cập nhật filtered students nếu đang tìm kiếm
-        setFilteredStudents(prevFiltered =>
-          prevFiltered.filter(student => student.mssv !== mssv)
-        );
+        // Hiển thị thông báo thành công
+        toast.success("Xóa sinh viên thành công!");
       } else {
         throw new Error(response.data.error || "Không thể xóa sinh viên");
       }
     } catch (error) {
       console.error('Lỗi khi xóa sinh viên:', error);
-      toast.error(error.response?.data?.error || error.message || "Không thể xóa sinh viên");
-    } finally {
-      setLoading(false);
+      toast.error(error.response?.data?.error || "Không thể xóa sinh viên");
     }
   };
 
