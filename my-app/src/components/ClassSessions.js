@@ -18,17 +18,29 @@ const ClassSessions = () => {
     const [loading, setLoading] = useState(false);
     const [sessionStudents, setSessionStudents] = useState({});
 
+    // Hàm kiểm tra và log kiểu dữ liệu
+    const logDataType = (data, name) => {
+        console.log(`=== Debug ${name} ===`);
+        console.log('Giá trị:', data);
+        console.log('typeof:', typeof data);
+        console.log('Array.isArray:', Array.isArray(data));
+        console.log('toString:', Object.prototype.toString.call(data));
+        console.log('Có phương thức map?', typeof data?.map === 'function');
+        console.log('====================');
+    };
+
     const fetchSessionStudents = async (sessionId) => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/session-students/${sessionId}`);
             const studentsData = response.data.students;
+            logDataType(studentsData, `studentsData cho session ${sessionId}`);
             if (response.data.success && Array.isArray(studentsData)) {
                 setSessionStudents(prev => ({
                     ...prev,
                     [sessionId]: studentsData
                 }));
             } else {
-                console.error(`Dữ liệu sinh viên không hợp lệ cho ca học ${sessionId}:`, studentsData);
+                console.error(`Dữ liệu sinh viên không hợp lệ cho ca học ${sessionId}`);
                 setSessionStudents(prev => ({
                     ...prev,
                     [sessionId]: []
@@ -48,6 +60,7 @@ const ClassSessions = () => {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
             const sessionsData = response.data.sessions;
+            logDataType(sessionsData, 'sessionsData');
             if (response.data.success && Array.isArray(sessionsData)) {
                 setSessions(sessionsData);
                 const initialSessionStudents = {};
@@ -66,6 +79,7 @@ const ClassSessions = () => {
                 console.error('Dữ liệu ca học không hợp lệ:', sessionsData);
                 setSessions([]);
                 setSessionStudents({});
+                toast.error("Dữ liệu ca học không hợp lệ");
             }
         } catch (error) {
             console.error("Lỗi khi tải danh sách ca học:", error);
@@ -81,9 +95,11 @@ const ClassSessions = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-students`);
-            console.log('Phản hồi API sinh viên:', response.data);
+            console.log('Phản hồi API /get-students:', response.data);
             const studentsData = response.data.students;
+            logDataType(studentsData, 'studentsData từ API');
             if (response.data.success && Array.isArray(studentsData)) {
+                console.log('Đặt students thành:', studentsData);
                 setStudents(studentsData);
             } else {
                 console.error('Dữ liệu sinh viên không hợp lệ:', studentsData);
@@ -92,8 +108,8 @@ const ClassSessions = () => {
             }
         } catch (error) {
             console.error("Lỗi khi tải danh sách sinh viên:", error);
-            toast.error("Không thể tải danh sách sinh viên");
             setStudents([]);
+            toast.error("Không thể tải danh sách sinh viên");
         } finally {
             setLoading(false);
         }
@@ -101,7 +117,7 @@ const ClassSessions = () => {
 
     useEffect(() => {
         const loadData = async () => {
-            await fetchStudents(); // Gọi tuần tự để tránh race condition
+            await fetchStudents();
             await fetchSessions();
         };
         loadData();
@@ -214,6 +230,7 @@ const ClassSessions = () => {
         const currentSessionStudents = Array.isArray(sessionStudents[sessionId])
             ? sessionStudents[sessionId]
             : [];
+        logDataType(students, 'students khi thêm thành viên');
         const selectedStudentObjects = students.filter(s => selectedStudents.includes(s.mssv));
         const combinedStudents = [...currentSessionStudents, ...selectedStudentObjects];
         const mssvList = combinedStudents.map(s => s.mssv);
@@ -232,8 +249,20 @@ const ClassSessions = () => {
     };
 
     const renderStudentsList = () => {
-        console.log('students trong renderStudentsList:', students);
-        if (!Array.isArray(students) || students.length === 0) {
+        logDataType(students, 'students trong renderStudentsList');
+        if (typeof students === 'undefined') {
+            console.warn('students là undefined');
+            return <p>Lỗi: Dữ liệu sinh viên chưa được tải</p>;
+        }
+        if (students === null) {
+            console.warn('students là null');
+            return <p>Lỗi: Dữ liệu sinh viên là null</p>;
+        }
+        if (!Array.isArray(students)) {
+            console.warn('students không phải mảng');
+            return <p>Lỗi: Dữ liệu sinh viên không hợp lệ</p>;
+        }
+        if (students.length === 0) {
             return <p>Không có sinh viên nào</p>;
         }
         return students.map(student => (
@@ -294,6 +323,7 @@ const ClassSessions = () => {
                     <div className="form-group">
                         <label>Chọn sinh viên:</label>
                         <div className="student-selection">
+                            {logDataType(students, 'students trong form thêm ca học')}
                             {Array.isArray(students) && students.length > 0 ? (
                                 students.map(student => (
                                     <div key={student.mssv} className="student-checkbox">
@@ -324,6 +354,7 @@ const ClassSessions = () => {
                     <h3>Chỉnh sửa ca học: {editingSession.time_slot}</h3>
                     <div className="form-group">
                         <label>Danh sách sinh viên hiện tại:</label>
+                        {logDataType(sessionStudents[editingSession.id], `sessionStudents[${editingSession.id}]`)}
                         {Array.isArray(sessionStudents[editingSession.id]) && sessionStudents[editingSession.id].length > 0 ? (
                             sessionStudents[editingSession.id].map(student => (
                                 <div key={student.mssv} className="student-item">
@@ -378,6 +409,7 @@ const ClassSessions = () => {
                         const currentStudents = Array.isArray(sessionStudents[session.id])
                             ? sessionStudents[session.id]
                             : [];
+                        logDataType(currentStudents, `currentStudents cho session ${session.id}`);
                         return (
                             <div key={session.id} className="session-card">
                                 <div className="session-details">
