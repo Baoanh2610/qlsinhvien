@@ -52,7 +52,8 @@ function AddStudent() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            "Accept": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
           },
           body: JSON.stringify(requestData),
           credentials: 'include'
