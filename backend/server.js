@@ -14,7 +14,7 @@ app.use(cors({
   origin: ['https://qlsinhvien-ecru.vercel.app', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   exposedHeaders: ['Content-Length', 'X-Kuma-Revision'],
   maxAge: 600
 }));
