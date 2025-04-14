@@ -363,23 +363,28 @@ app.delete("/delete-student", async (req, res) => {
   try {
     console.log('Đang xóa sinh viên có MSSV:', mssv);
 
-    const [result] = await db.promise().query(
-      "DELETE FROM students WHERE mssv = ?",
-      [mssv]
-    );
+    const sql = "DELETE FROM students WHERE mssv = ?";
+    db.query(sql, [mssv], (err, result) => {
+      if (err) {
+        console.error("Lỗi khi xóa sinh viên:", err);
+        return res.status(500).json({
+          success: false,
+          message: "Lỗi khi xóa sinh viên",
+          error: err.message
+        });
+      }
 
-    console.log('Kết quả xóa:', result);
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy sinh viên cần xóa"
+        });
+      }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy sinh viên cần xóa"
+      res.json({
+        success: true,
+        message: "Xóa sinh viên thành công"
       });
-    }
-
-    res.json({
-      success: true,
-      message: "Xóa sinh viên thành công"
     });
   } catch (error) {
     console.error("Lỗi khi xóa sinh viên:", error);
