@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ClassSessions.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
@@ -51,18 +51,23 @@ const ClassSessions = () => {
             console.log('Sessions response:', response.data);
 
             if (response.data.success && Array.isArray(response.data.sessions)) {
-                setSessions(response.data.sessions);
+                const sessionsData = response.data.sessions;
+                setSessions(sessionsData);
 
                 // Khởi tạo sessionStudents với mảng trống cho mỗi session
                 const initialSessionStudents = {};
-                response.data.sessions.forEach(session => {
-                    initialSessionStudents[session.id] = [];
+                sessionsData.forEach(session => {
+                    if (session && session.id) {
+                        initialSessionStudents[session.id] = [];
+                    }
                 });
                 setSessionStudents(initialSessionStudents);
 
                 // Lấy danh sách sinh viên cho từng session
-                for (const session of response.data.sessions) {
-                    await fetchSessionStudents(session.id);
+                for (const session of sessionsData) {
+                    if (session && session.id) {
+                        await fetchSessionStudents(session.id);
+                    }
                 }
             } else {
                 console.error('Invalid sessions data:', response.data);
@@ -83,12 +88,15 @@ const ClassSessions = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-students`);
+            console.log('fetchStudents response:', response.data);
 
-            if (response.data.success && Array.isArray(response.data.students)) {
-                setStudents(response.data.students);
+            const studentsData = response.data.students;
+            if (response.data.success && Array.isArray(studentsData)) {
+                setStudents(studentsData);
             } else {
+                console.error('Invalid students data:', studentsData);
                 setStudents([]);
-                throw new Error("Dữ liệu sinh viên không đúng định dạng");
+                toast.error("Dữ liệu sinh viên không hợp lệ");
             }
         } catch (error) {
             console.error("Lỗi khi tải danh sách sinh viên:", error);
@@ -204,8 +212,7 @@ const ClassSessions = () => {
     };
 
     const handleRemoveMember = async (sessionId, mssv) => {
-        // Kiểm tra sessionStudents[sessionId] có phải là mảng không
-        if (!sessionStudents[sessionId] || !Array.isArray(sessionStudents[sessionId])) {
+        if (!Array.isArray(sessionStudents[sessionId])) {
             console.error(`Không thể xóa sinh viên, sessionStudents[${sessionId}] không phải là mảng`);
             return;
         }
@@ -233,25 +240,16 @@ const ClassSessions = () => {
         }
 
         const sessionId = editingSession.id;
-
-        // Đảm bảo sessionStudents[sessionId] là một mảng
         const currentSessionStudents = Array.isArray(sessionStudents[sessionId])
             ? sessionStudents[sessionId]
             : [];
 
-        // Lấy danh sách MSSV hiện có
-        const existingMssvs = currentSessionStudents.map(s => s.mssv);
-
-        // Lấy thông tin sinh viên từ danh sách sinh viên chưa phân ca
         const selectedStudentObjects = students.filter(s => selectedStudents.includes(s.mssv));
-
-        // Kết hợp hai danh sách và loại bỏ trùng lặp
         const combinedStudents = [
             ...currentSessionStudents,
             ...selectedStudentObjects
         ];
 
-        // Lấy danh sách MSSV để gửi lên server
         const mssvList = combinedStudents.map(s => s.mssv);
 
         await handleUpdateSession(sessionId, mssvList);
@@ -268,7 +266,6 @@ const ClassSessions = () => {
         });
     };
 
-    // Hiển thị danh sách sinh viên cho chế độ chỉnh sửa
     const renderStudentsList = () => {
         if (!Array.isArray(students) || students.length === 0) {
             return <p>Không có sinh viên nào</p>;
@@ -357,38 +354,88 @@ const ClassSessions = () => {
                 </form>
             )}
 
+            {editingSession && (
+                <div className="edit-session-form">
+                    <h3>Chỉnh sửa ca học: {editingSession.time_slot}</h3>
+                    <div className="form-group">
+                        <label>Danh sách sinh viên hiện tại:</label>
+                        {Array.isArray(sessionStudents[editingSession.id]) && sessionStudents[editingSession.id].length > 0 ? (
+                            sessionStudents[editingSession.id].map(student => (
+                                <div key={student.mssv} className="student-item">
+                                    {student.hoten} - {student.mssv}
+                                    <button
+                                        className="remove-student-btn"
+                                        onClick={() => handleRemoveMember(editingSession.id, student.mssv)}
+                                    >
+                                        Xóa
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p>Không có sinh viên trong ca học này</p>
+                        )}
+                    </div>
+                    <div className="form-group">
+                        <label>Thêm sinh viên:</label>
+                        <div className="student-selection">
+                            {renderStudentsList()}
+                        </div>
+                    </div>
+                    <button
+                        className="add-members-btn"
+                        onClick={handleAddMembers}
+                        disabled={loading}
+                    >
+                        {loading ? 'Đang Xử Lý...' : 'Thêm Sinh Viên'}
+                    </button>
+                    <button
+                        className="cancel-btn"
+                        onClick={() => {
+                            setEditingSession(null);
+                            setEditMode(null);
+                            setSelectedStudents([]);
+                        }}
+                    >
+                        Hủy
+                    </button>
+                </div>
+            )}
+
             <div className="sessions-list">
                 {loading ? (
                     <p>Đang tải dữ liệu...</p>
                 ) : Array.isArray(sessions) && sessions.length > 0 ? (
                     sessions.map(session => {
-                        const currentStudents = sessionStudents[session.id] || [];
-                        console.log(`Rendering session ${session.id}:`, session);
-                        console.log(`Students for session ${session.id}:`, currentStudents);
+                        if (!session || !session.id) {
+                            console.error('Invalid session data:', session);
+                            return null;
+                        }
+
+                        const currentStudents = Array.isArray(sessionStudents[session.id])
+                            ? sessionStudents[session.id]
+                            : [];
 
                         return (
                             <div key={session.id} className="session-card">
                                 <div className="session-details">
                                     <h3>{session.time_slot}</h3>
+                                    <p>Ngày: {session.date}</p>
                                     <p>Phòng: {session.room}</p>
-                                    <p>Ngày: {new Date(session.date).toLocaleDateString()}</p>
                                 </div>
                                 <div className="session-students">
                                     <h4>Danh sách sinh viên:</h4>
-                                    {Array.isArray(currentStudents) && currentStudents.length > 0 ? (
-                                        currentStudents.map(student => (
-                                            <div key={student.mssv} className="student-item">
-                                                {student.hoten} - {student.mssv}
-                                                {editingSession?.id === session.id && editMode === 'remove' && (
-                                                    <button
-                                                        className="remove-student-btn"
-                                                        onClick={() => handleRemoveMember(session.id, student.mssv)}
-                                                    >
-                                                        X
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))
+                                    {currentStudents.length > 0 ? (
+                                        currentStudents.map(student => {
+                                            if (!student || !student.mssv) {
+                                                console.error('Invalid student data:', student);
+                                                return null;
+                                            }
+                                            return (
+                                                <div key={student.mssv} className="student-item">
+                                                    {student.hoten} - {student.mssv}
+                                                </div>
+                                            );
+                                        })
                                     ) : (
                                         <p>Không có sinh viên</p>
                                     )}
@@ -400,42 +447,7 @@ const ClassSessions = () => {
                                     <button className="delete-btn" onClick={() => handleDeleteSession(session.id)}>
                                         Xóa
                                     </button>
-                                    {editingSession?.id === session.id && (
-                                        <div className="edit-actions">
-                                            <button className="add-btn" onClick={() => setEditMode('add')}>
-                                                Thêm Sinh Viên
-                                            </button>
-                                            <button className="remove-btn" onClick={() => setEditMode('remove')}>
-                                                Xóa Sinh Viên
-                                            </button>
-                                        </div>
-                                    )}
                                 </div>
-
-                                {/* Phần thêm sinh viên vào ca học */}
-                                {editingSession?.id === session.id && editMode === 'add' && (
-                                    <div className="add-students-form">
-                                        <h4>Thêm sinh viên vào ca học</h4>
-                                        <div className="student-selection">
-                                            {renderStudentsList()}
-                                        </div>
-                                        <div className="add-students-actions">
-                                            <button
-                                                className="confirm-add-btn"
-                                                onClick={handleAddMembers}
-                                                disabled={loading}
-                                            >
-                                                {loading ? 'Đang xử lý...' : 'Xác nhận thêm'}
-                                            </button>
-                                            <button
-                                                className="cancel-btn"
-                                                onClick={() => setEditMode(null)}
-                                            >
-                                                Hủy
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         );
                     })
