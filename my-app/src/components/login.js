@@ -192,9 +192,9 @@ const LoginPage = () => {
 
         // Chuyển hướng dựa trên role
         if (response.data.user.role === 'admin') {
-          navigate('/home');
+          window.location.href = '/home';  // Sử dụng window.location.href thay vì navigate
         } else {
-          navigate('/student-home');
+          window.location.href = '/student-home';
         }
       } else {
         setError(response.data.message || "Đăng nhập thất bại");
