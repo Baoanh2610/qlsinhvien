@@ -44,40 +44,30 @@ function Home() {
     if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
       try {
         console.log('Đang gửi request xóa sinh viên:', mssv);
-        console.log('API URL:', `${process.env.REACT_APP_API_URL}/delete_students.php`);
 
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/delete_students.php`,
+        const response = await axios.delete(
+          `${process.env.REACT_APP_API_URL}/delete-student`,
           {
-            method: "POST",
+            data: { mssv },
             headers: {
               "Content-Type": "application/json",
               "Accept": "application/json"
             },
-            body: JSON.stringify({ mssv }),
-            credentials: 'include'
+            withCredentials: true
           }
         );
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        console.log('Response từ server:', response.data);
 
-        const result = await response.json();
-        console.log('Response từ server:', result);
-
-        if (result.success) {
+        if (response.data.success) {
           setStudents(students.filter(student => student.mssv !== mssv));
           setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
           toast.success("Xóa sinh viên thành công");
         } else {
-          toast.error(result.message || "Không thể xóa sinh viên");
+          toast.error(response.data.message || "Không thể xóa sinh viên");
         }
       } catch (error) {
-        console.error('Chi tiết lỗi:', {
-          message: error.message,
-          status: error.status
-        });
+        console.error('Chi tiết lỗi:', error);
         toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
       }
     }
