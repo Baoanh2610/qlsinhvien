@@ -45,6 +45,7 @@ function Home() {
       try {
         console.log('Đang gửi request xóa sinh viên:', mssv);
         console.log('API URL:', `${process.env.REACT_APP_API_URL}/delete-student`);
+        console.log('Phương thức:', 'DELETE');
 
         const response = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-student`, {
           data: { mssv },
@@ -67,9 +68,14 @@ function Home() {
         console.error('Chi tiết lỗi:', {
           message: error.message,
           response: error.response?.data,
-          status: error.response?.status
+          status: error.response?.status,
+          headers: error.response?.headers
         });
-        toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
+        if (error.response && error.response.headers['content-type']?.includes('text/html')) {
+          toast.error("Lỗi server: Nhận được phản hồi HTML thay vì JSON. Kiểm tra endpoint backend.");
+        } else {
+          toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
+        }
       }
     }
   };
