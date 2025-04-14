@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './ClassSessions.css';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const ClassSessions = () => {
     const [sessions, setSessions] = useState([]);  // Ensure this is initialized as an empty array
@@ -17,92 +18,57 @@ const ClassSessions = () => {
     const [loading, setLoading] = useState(false);
     const [sessionStudents, setSessionStudents] = useState({});
 
-    const fetchSessionStudents = useCallback(async (sessionId) => {
+    const fetchSessionStudents = async (sessionId) => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-session-students?session_id=${sessionId}`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const data = await response.json();
-            console.log(`Session ${sessionId} students:`, data);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/session-students/${sessionId}`);
 
-            // Luôn đảm bảo cập nhật state với một mảng
-            if (data.success && Array.isArray(data.students)) {
+            if (response.data.success) {
                 setSessionStudents(prev => ({
                     ...prev,
-                    [sessionId]: data.students
+                    [sessionId]: response.data.students
                 }));
-                return data.students;
             } else {
-                console.error(`Dữ liệu sinh viên không đúng định dạng cho session ${sessionId}:`, data);
-                setSessionStudents(prev => ({
-                    ...prev,
-                    [sessionId]: []  // Mảng trống làm giá trị mặc định
-                }));
-                return [];
+                throw new Error("Không thể tải danh sách sinh viên của ca học");
             }
         } catch (error) {
-            console.error(`Lỗi khi lấy sinh viên cho session ${sessionId}:`, error);
-            setSessionStudents(prev => ({
-                ...prev,
-                [sessionId]: []  // Mảng trống khi có lỗi
-            }));
-            return [];
+            console.error("Lỗi khi tải danh sách sinh viên của ca học:", error);
+            toast.error("Không thể tải danh sách sinh viên của ca học");
         }
-    }, []);
+    };
 
-    const fetchSessions = useCallback(async () => {
+    const fetchSessions = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const data = await response.json();
-            console.log('Sessions data:', data);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
 
-            // Always make sure we set sessions to an array
-            if (data.success && Array.isArray(data.sessions)) {
-                setSessions(data.sessions);
-
-                // Khởi tạo sessionStudents với mảng trống cho mỗi session
-                const initialSessionStudents = {};
-                data.sessions.forEach(session => {
-                    initialSessionStudents[session.id] = initialSessionStudents[session.id] || [];
-                });
-                setSessionStudents(prev => ({ ...prev, ...initialSessionStudents }));
-
-                // Lấy danh sách sinh viên cho từng session
-                for (const session of data.sessions) {
-                    await fetchSessionStudents(session.id);
-                }
+            if (response.data.success) {
+                setSessions(response.data.sessions);
             } else {
-                console.error('Dữ liệu ca học không đúng định dạng:', data);
-                toast.error('Dữ liệu ca học không đúng định dạng');
-                setSessions([]);  // Ensure we set an empty array
+                throw new Error("Không thể tải danh sách ca học");
             }
         } catch (error) {
-            console.error('Lỗi khi lấy danh sách ca học:', error);
-            toast.error('Không thể tải danh sách ca học');
-            setSessions([]);  // Ensure we set an empty array
+            console.error("Lỗi khi tải danh sách ca học:", error);
+            toast.error("Không thể tải danh sách ca học");
         } finally {
             setLoading(false);
         }
-    }, [fetchSessionStudents]);
+    };
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-unassigned-students`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const data = await response.json();
-            console.log('Unassigned students data:', data);
-            if (data.success && Array.isArray(data.students)) {
-                setStudents(data.students);
+            setLoading(true);
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-students`);
+
+            if (response.data.success) {
+                setStudents(response.data.students);
             } else {
-                console.error('Dữ liệu sinh viên không đúng định dạng:', data);
-                setStudents([]);
-                toast.error('Dữ liệu sinh viên không đúng định dạng');
+                throw new Error("Không thể tải danh sách sinh viên");
             }
         } catch (error) {
-            console.error('Lỗi khi lấy danh sách sinh viên:', error);
-            setStudents([]);
-            toast.error('Không thể tải danh sách sinh viên');
+            console.error("Lỗi khi tải danh sách sinh viên:", error);
+            toast.error("Không thể tải danh sách sinh viên");
+        } finally {
+            setLoading(false);
         }
     };
 
