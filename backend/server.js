@@ -816,6 +816,29 @@ app.delete('/remove-student-from-session', async (req, res) => {
   }
 });
 
+// Lấy danh sách sinh viên của một ca học
+app.get("/session-students/:id", (req, res) => {
+  const sessionId = req.params.id;
+  const query = `
+    SELECT s.* 
+    FROM students s
+    JOIN session_students ss ON s.mssv = ss.mssv
+    WHERE ss.session_id = ?
+  `;
+
+  db.query(query, [sessionId], (err, results) => {
+    if (err) {
+      console.error("Lỗi khi lấy danh sách sinh viên của ca học:", err);
+      return res.status(500).json({ error: "Lỗi khi lấy danh sách sinh viên" });
+    }
+
+    res.json({
+      success: true,
+      students: results || []
+    });
+  });
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
