@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./AddStudent.css"; // Import file CSS
+import { toast } from "react-hot-toast";
 
 function AddStudent() {
   const [student, setStudent] = useState({
@@ -9,13 +10,17 @@ function AddStudent() {
     lop: "",
     ngaySinh: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setStudent({ ...student, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleAddStudent = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     if (
       !student.mssv ||
@@ -24,72 +29,86 @@ function AddStudent() {
       !student.lop ||
       !student.ngaySinh
     ) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      setLoading(false);
       return;
     }
 
     try {
+      console.log('Đang gửi request thêm sinh viên:', student);
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/add-student`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
           body: JSON.stringify(student),
+          credentials: 'include'
         }
       );
 
-      const data = await response.json();
-      if (data.success) {
-        alert("Thêm sinh viên thành công!"); // Bạn có thể xóa `ID: ${data.id}` vì PHP không trả về ID
+      const result = await response.json();
+      console.log('Response từ server:', result);
+
+      if (response.ok) {
+        toast.success(result.message || "Thêm sinh viên thành công");
         setStudent({ mssv: "", hoTen: "", khoa: "", lop: "", ngaySinh: "" });
+        fetchStudents();
       } else {
-        alert(data.message);
+        throw new Error(result.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
-      console.error("Lỗi:", error);
-      alert("Lỗi khi gửi dữ liệu!");
+      console.error('Chi tiết lỗi:', error);
+      toast.error(error.message || "Không thể thêm sinh viên");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="add-student-container">
       <h2>Thêm Sinh Viên</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleAddStudent}>
         <input
           type="text"
           name="mssv"
           placeholder="MSSV"
-          value={student.mssv} // Thêm value để liên kết với state
+          value={student.mssv}
           onChange={handleChange}
         />
         <input
           type="text"
           name="hoTen"
           placeholder="Họ Tên"
-          value={student.hoTen} // Thêm value để liên kết với state
+          value={student.hoTen}
           onChange={handleChange}
         />
         <input
           type="text"
           name="khoa"
           placeholder="Khoa"
-          value={student.khoa} // Thêm value để liên kết với state
+          value={student.khoa}
           onChange={handleChange}
         />
         <input
           type="text"
           name="lop"
           placeholder="Lớp"
-          value={student.lop} // Thêm value để liên kết với state
+          value={student.lop}
           onChange={handleChange}
         />
         <input
           type="date"
           name="ngaySinh"
-          value={student.ngaySinh} // Thêm value để liên kết với state
+          value={student.ngaySinh}
           onChange={handleChange}
         />
-        <button type="submit">Thêm</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Đang thêm..." : "Thêm"}
+        </button>
       </form>
     </div>
   );
