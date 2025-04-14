@@ -22,6 +22,23 @@ app.use(cors({
 app.options('*', cors());
 
 app.use(bodyParser.json());
+
+// Middleware để chuyển đổi tên trường
+app.use((req, res, next) => {
+  if (req.body) {
+    // Chuyển đổi hoTen thành hoten và ngaySinh thành ngaysinh
+    if (req.body.hoTen) {
+      req.body.hoten = req.body.hoTen;
+      delete req.body.hoTen;
+    }
+    if (req.body.ngaySinh) {
+      req.body.ngaysinh = req.body.ngaySinh;
+      delete req.body.ngaySinh;
+    }
+  }
+  next();
+});
+
 app.use(cookieParser());
 
 app.use(session({
