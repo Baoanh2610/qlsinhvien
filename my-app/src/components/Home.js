@@ -102,16 +102,18 @@ function Home() {
     }
 
     try {
-      console.log('Dữ liệu sinh viên trước khi gửi:', student);
-      console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
-
-      const response = await axios.post('/add-student', {
+      const requestData = {
         mssv: student.mssv,
         hoten: student.hoten,
         khoa: student.khoa,
         lop: student.lop,
         ngaysinh: student.ngaysinh
-      });
+      };
+
+      console.log('Dữ liệu sinh viên trước khi gửi:', requestData);
+      console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
+
+      const response = await axios.post('/add-student', requestData);
 
       console.log('Response status:', response.status);
       console.log('Response data:', response.data);
