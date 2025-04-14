@@ -5,10 +5,10 @@ import { toast } from "react-hot-toast";
 function AddStudent() {
   const [student, setStudent] = useState({
     mssv: "",
-    hoTen: "",
+    hoten: "",
     khoa: "",
     lop: "",
-    ngaySinh: "",
+    ngaysinh: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,10 +24,10 @@ function AddStudent() {
 
     if (
       !student.mssv ||
-      !student.hoTen ||
+      !student.hoten ||
       !student.khoa ||
       !student.lop ||
-      !student.ngaySinh
+      !student.ngaysinh
     ) {
       toast.error("Vui lòng nhập đầy đủ thông tin!");
       setLoading(false);
@@ -55,7 +55,7 @@ function AddStudent() {
 
       if (response.ok) {
         toast.success(result.message || "Thêm sinh viên thành công");
-        setStudent({ mssv: "", hoTen: "", khoa: "", lop: "", ngaySinh: "" });
+        setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
       } else {
         throw new Error(result.error || "Không thể thêm sinh viên");
       }
@@ -80,9 +80,9 @@ function AddStudent() {
         />
         <input
           type="text"
-          name="hoTen"
+          name="hoten"
           placeholder="Họ Tên"
-          value={student.hoTen}
+          value={student.hoten}
           onChange={handleChange}
         />
         <input
@@ -101,8 +101,8 @@ function AddStudent() {
         />
         <input
           type="date"
-          name="ngaySinh"
-          value={student.ngaySinh}
+          name="ngaysinh"
+          value={student.ngaysinh}
           onChange={handleChange}
         />
         <button type="submit" disabled={loading}>
