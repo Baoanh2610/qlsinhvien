@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./AddStudent.css"; // Import file CSS
+import "./AddStudent.css";
 import { toast } from "react-hot-toast";
 
 function AddStudent() {
