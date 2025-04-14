@@ -35,7 +35,15 @@ function AddStudent() {
     }
 
     try {
-      console.log('Dữ liệu sinh viên trước khi gửi:', student);
+      const requestData = {
+        mssv: student.mssv,
+        hoten: student.hoten,
+        khoa: student.khoa,
+        lop: student.lop,
+        ngaysinh: student.ngaysinh
+      };
+
+      console.log('Dữ liệu sinh viên trước khi gửi:', requestData);
       console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
 
       const response = await fetch(
@@ -46,13 +54,7 @@ function AddStudent() {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          body: JSON.stringify({
-            mssv: student.mssv,
-            hoten: student.hoten,
-            khoa: student.khoa,
-            lop: student.lop,
-            ngaysinh: student.ngaysinh
-          }),
+          body: JSON.stringify(requestData),
           credentials: 'include'
         }
       );
