@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const ClassSessions = () => {
-    const [sessions, setSessions] = useState([]);  // Ensure this is initialized as an empty array
+    const [sessions, setSessions] = useState([]);
     const [students, setStudents] = useState([]);
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedStudents, setSelectedStudents] = useState([]);
@@ -20,7 +20,8 @@ const ClassSessions = () => {
 
     const fetchSessionStudents = async (sessionId) => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_URL}/session-students/${sessionId}`);
+            // Sửa để sử dụng endpoint đúng theo backend
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-session-students?session_id=${sessionId}`);
 
             if (response.data.success && Array.isArray(response.data.students)) {
                 setSessionStudents(prev => ({
@@ -157,6 +158,7 @@ const ClassSessions = () => {
                 setSelectedStudents([]);
                 await fetchSessions();
                 await fetchStudents();
+                setEditMode(null);
             } else {
                 toast.error(data.message || 'Lỗi khi cập nhật ca học');
             }
@@ -200,6 +202,7 @@ const ClassSessions = () => {
     };
 
     const handleRemoveMember = async (sessionId, mssv) => {
+        // Kiểm tra sessionStudents[sessionId] có phải là mảng không
         if (!sessionStudents[sessionId] || !Array.isArray(sessionStudents[sessionId])) {
             console.error(`Không thể xóa sinh viên, sessionStudents[${sessionId}] không phải là mảng`);
             return;
@@ -261,6 +264,27 @@ const ClassSessions = () => {
             }
             return [...prev, mssv];
         });
+    };
+
+    // Hiển thị danh sách sinh viên cho chế độ chỉnh sửa
+    const renderStudentsList = () => {
+        if (!Array.isArray(students) || students.length === 0) {
+            return <p>Không có sinh viên nào</p>;
+        }
+
+        return students.map(student => (
+            <div key={student.mssv} className="student-checkbox">
+                <input
+                    type="checkbox"
+                    id={`edit-${student.mssv}`}
+                    checked={selectedStudents.includes(student.mssv)}
+                    onChange={() => handleStudentSelect(student.mssv)}
+                />
+                <label htmlFor={`edit-${student.mssv}`}>
+                    {student.hoten} - {student.mssv}
+                </label>
+            </div>
+        ));
     };
 
     return (
@@ -339,13 +363,23 @@ const ClassSessions = () => {
                         <div key={session.id} className="session-card">
                             <div className="session-details">
                                 <h3>{session.time_slot}</h3>
-                                <p>{session.room}</p>
+                                <p>Phòng: {session.room}</p>
+                                <p>Ngày: {new Date(session.date).toLocaleDateString()}</p>
                             </div>
                             <div className="session-students">
-                                {Array.isArray(sessionStudents[session.id]) ? (
+                                <h4>Danh sách sinh viên:</h4>
+                                {Array.isArray(sessionStudents[session.id]) && sessionStudents[session.id].length > 0 ? (
                                     sessionStudents[session.id].map(student => (
                                         <div key={student.mssv} className="student-item">
                                             {student.hoten} - {student.mssv}
+                                            {editingSession?.id === session.id && editMode === 'remove' && (
+                                                <button
+                                                    className="remove-student-btn"
+                                                    onClick={() => handleRemoveMember(session.id, student.mssv)}
+                                                >
+                                                    X
+                                                </button>
+                                            )}
                                         </div>
                                     ))
                                 ) : (
@@ -362,14 +396,39 @@ const ClassSessions = () => {
                                 {editingSession?.id === session.id && (
                                     <div className="edit-actions">
                                         <button className="add-btn" onClick={() => setEditMode('add')}>
-                                            Thêm
+                                            Thêm Sinh Viên
                                         </button>
                                         <button className="remove-btn" onClick={() => setEditMode('remove')}>
-                                            Xóa
+                                            Xóa Sinh Viên
                                         </button>
                                     </div>
                                 )}
                             </div>
+
+                            {/* Phần thêm sinh viên vào ca học */}
+                            {editingSession?.id === session.id && editMode === 'add' && (
+                                <div className="add-students-form">
+                                    <h4>Thêm sinh viên vào ca học</h4>
+                                    <div className="student-selection">
+                                        {renderStudentsList()}
+                                    </div>
+                                    <div className="add-students-actions">
+                                        <button
+                                            className="confirm-add-btn"
+                                            onClick={handleAddMembers}
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Đang xử lý...' : 'Xác nhận thêm'}
+                                        </button>
+                                        <button
+                                            className="cancel-btn"
+                                            onClick={() => setEditMode(null)}
+                                        >
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ))
                 ) : (
