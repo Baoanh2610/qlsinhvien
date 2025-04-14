@@ -43,48 +43,42 @@ function Home() {
   const handleDeleteStudent = async (mssv) => {
     if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
       try {
-        // Log để debug
-        console.log('Đang gửi request xóa sinh viên với MSSV:', mssv);
+        console.log('Đang gửi request xóa sinh viên:', mssv);
+        console.log('API URL:', `${process.env.REACT_APP_API_URL}/delete_students.php`);
 
-        // Tạo một request giống hệt với Postman
-        const response = await axios({
-          method: 'DELETE',
-          url: `${process.env.REACT_APP_API_URL}/delete-student`,
-          data: { mssv },
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          withCredentials: true
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/delete_students.php`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({ mssv }),
+            credentials: 'include'
+          }
+        );
 
-        console.log('Response từ server:', response.data);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        if (response.data.success) {
-          // Cập nhật state sau khi xóa thành công
-          setStudents(prevStudents => prevStudents.filter(student => student.mssv !== mssv));
-          setFilteredStudents(prevFiltered => prevFiltered.filter(student => student.mssv !== mssv));
+        const result = await response.json();
+        console.log('Response từ server:', result);
+
+        if (result.success) {
+          setStudents(students.filter(student => student.mssv !== mssv));
+          setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
           toast.success("Xóa sinh viên thành công");
         } else {
-          toast.error(response.data.message || "Không thể xóa sinh viên");
+          toast.error(result.message || "Không thể xóa sinh viên");
         }
       } catch (error) {
-        console.error('Chi tiết lỗi:', error);
-
-        // Log thêm thông tin chi tiết về lỗi
-        if (error.response) {
-          // Server trả về lỗi với status code
-          console.error('Lỗi response:', error.response.data);
-          console.error('Status code:', error.response.status);
-          toast.error(`Lỗi: ${error.response.status} - ${error.response.data.message || "Không thể xóa sinh viên"}`);
-        } else if (error.request) {
-          // Không nhận được response
-          console.error('Không nhận được response:', error.request);
-          toast.error("Không nhận được phản hồi từ máy chủ");
-        } else {
-          // Lỗi khác
-          toast.error("Lỗi khi gửi yêu cầu: " + error.message);
-        }
+        console.error('Chi tiết lỗi:', {
+          message: error.message,
+          status: error.status
+        });
+        toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
       }
     }
   };
