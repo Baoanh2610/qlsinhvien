@@ -755,6 +755,31 @@ app.post("/mark-notification-read", (req, res) => {
   });
 });
 
+// API xóa sinh viên khỏi ca học
+app.delete('/remove-student-from-session', async (req, res) => {
+  const { session_id, mssv } = req.body;
+  if (!session_id || !mssv) {
+    return res.status(400).json({ success: false, message: 'Thiếu thông tin session_id hoặc mssv' });
+  }
+
+  try {
+    // Xóa sinh viên khỏi bảng class_session_student
+    await db.query(
+      'DELETE FROM class_session_student WHERE session_id = ? AND mssv = ?',
+      [session_id, mssv]
+    );
+
+    res.json({ success: true, message: 'Xóa sinh viên khỏi ca học thành công' });
+  } catch (error) {
+    console.error('Lỗi khi xóa sinh viên khỏi ca học:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Lỗi khi xóa sinh viên khỏi ca học',
+      error: error.message
+    });
+  }
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
