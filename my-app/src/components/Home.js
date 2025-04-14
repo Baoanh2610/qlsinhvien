@@ -88,19 +88,29 @@ function Home() {
     e.preventDefault();
     setLoading(true);
 
+    const trimmedFormData = {
+      mssv: formData.mssv.trim(),
+      hoten: formData.hoten.trim(),
+      khoa: formData.khoa.trim(),
+      lop: formData.lop.trim(),
+      ngaysinh: formData.ngaysinh.trim(),
+    };
+
+    // Kiểm tra chuỗi rỗng
     if (
-      !formData.mssv ||
-      !formData.hoten ||
-      !formData.khoa ||
-      !formData.lop ||
-      !formData.ngaysinh
+      trimmedFormData.mssv === "" ||
+      trimmedFormData.hoten === "" ||
+      trimmedFormData.khoa === "" ||
+      trimmedFormData.lop === "" ||
+      trimmedFormData.ngaysinh === ""
     ) {
-      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      toast.error("Vui lòng nhập đầy đủ thông tin, không để trống!");
       setLoading(false);
       return;
     }
 
     try {
+      console.log('Payload gửi đi:', trimmedFormData);
       const response = await fetch(`${process.env.REACT_APP_API_URL}/add-student`, {
         method: "POST",
         headers: {
@@ -108,11 +118,12 @@ function Home() {
           "Accept": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(trimmedFormData),
         credentials: 'include',
       });
 
       const result = await response.json();
+      console.log('Phản hồi từ server:', result);
 
       if (response.ok) {
         toast.success(result.message || "Thêm sinh viên thành công");
@@ -126,11 +137,11 @@ function Home() {
         setShowAddForm(false);
         fetchStudents();
       } else {
-        throw new Error(result.error || "Không thể thêm sinh viên");
+        toast.error(result.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
       console.error("Lỗi khi thêm sinh viên:", error);
-      toast.error(error.message || "Không thể thêm sinh viên");
+      toast.error("Không thể thêm sinh viên: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -208,6 +219,7 @@ function Home() {
               value={formData.mssv}
               onChange={handleInputChange}
               required
+              maxLength="20"
             />
             <input
               type="text"
@@ -216,6 +228,7 @@ function Home() {
               value={formData.hoten}
               onChange={handleInputChange}
               required
+              maxLength="100"
             />
             <input
               type="text"
@@ -224,6 +237,7 @@ function Home() {
               value={formData.khoa}
               onChange={handleInputChange}
               required
+              maxLength="50"
             />
             <input
               type="text"
@@ -232,6 +246,7 @@ function Home() {
               value={formData.lop}
               onChange={handleInputChange}
               required
+              maxLength="50"
             />
             <input
               type="date"
