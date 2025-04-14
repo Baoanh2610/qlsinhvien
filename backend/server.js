@@ -184,24 +184,30 @@ app.post("/add-student", (req, res) => {
   console.log('Request headers:', req.headers);
 
   const { mssv, hoten, khoa, lop, ngaysinh } = req.body;
-  console.log('Parsed data:', { mssv, hoten, khoa, lop, ngaysinh });
 
   if (!mssv || !hoten || !khoa || !lop || !ngaysinh) {
-    console.log('Missing fields:', {
+    const missingFields = {
       mssv: !mssv,
       hoten: !hoten,
       khoa: !khoa,
       lop: !lop,
-      ngaysinh: !ngaysinh
+      ngaysinh: !ngaysinh,
+    };
+    console.log('Missing fields:', missingFields);
+    return res.status(400).json({
+      error: "Vui lòng nhập đầy đủ thông tin!",
+      missingFields,
     });
-    return res.status(400).json({ error: "Vui lòng nhập đầy đủ thông tin!" });
   }
 
   const sql = "INSERT INTO students (mssv, hoten, khoa, lop, ngaysinh) VALUES (?, ?, ?, ?, ?)";
   db.query(sql, [mssv, hoten, khoa, lop, ngaysinh], (err, result) => {
     if (err) {
       console.error("Lỗi khi thêm sinh viên:", err);
-      return res.status(500).json({ error: "Lỗi máy chủ!" });
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.status(400).json({ error: "MSSV đã tồn tại!" });
+      }
+      return res.status(500).json({ error: "Lỗi máy chủ!", details: err.message });
     }
     console.log('Insert result:', result);
     res.json({ message: "Thêm sinh viên thành công!", id: result.insertId });
