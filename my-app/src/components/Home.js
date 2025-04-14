@@ -136,31 +136,24 @@ function Home() {
 
   // Xóa sinh viên
   const handleDeleteStudent = async (mssv) => {
-    if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/delete-student`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-          body: JSON.stringify({ mssv }),
-          credentials: 'include',
-        });
+    if (!window.confirm('Bạn có chắc chắn muốn xóa sinh viên này?')) {
+      return;
+    }
 
-        const result = await response.json();
+    try {
+      const response = await axios.delete('/delete-student', {
+        data: { mssv }
+      });
 
-        if (result.success) {
-          setStudents(students.filter((student) => student.mssv !== mssv));
-          setFilteredStudents(filteredStudents.filter((student) => student.mssv !== mssv));
-          toast.success("Xóa sinh viên thành công");
-        } else {
-          toast.error(result.message || "Không thể xóa sinh viên");
-        }
-      } catch (error) {
-        console.error("Lỗi khi xóa sinh viên:", error);
-        toast.error("Không thể xóa sinh viên. Vui lòng thử lại.");
+      if (response.status === 200) {
+        toast.success(response.data.message || "Xóa sinh viên thành công");
+        fetchStudents();
+      } else {
+        throw new Error(response.data.error || "Không thể xóa sinh viên");
       }
+    } catch (error) {
+      console.error('Lỗi khi xóa sinh viên:', error);
+      toast.error(error.message || "Không thể xóa sinh viên");
     }
   };
 
