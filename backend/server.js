@@ -363,7 +363,7 @@ app.delete("/delete-student", async (req, res) => {
   try {
     console.log('Đang xóa sinh viên có MSSV:', mssv);
 
-    const [result] = await db.query(
+    const [result] = await db.promise().query(
       "DELETE FROM students WHERE mssv = ?",
       [mssv]
     );
@@ -791,7 +791,7 @@ app.delete('/remove-student-from-session', async (req, res) => {
   try {
     // Xóa sinh viên khỏi bảng class_session_student
     await db.query(
-      'DELETE FROM class_session_student WHERE session_id = ? AND mssv = ?',
+      'DELETE FROM class_session_students WHERE session_id = ? AND mssv = ?',
       [session_id, mssv]
     );
 
