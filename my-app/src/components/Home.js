@@ -12,6 +12,16 @@ function Home() {
     hoTen: "",
     lop: "",
   });
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    mssv: "",
+    hoten: "",
+    khoa: "",
+    lop: "",
+    ngaysinh: ""
+  });
 
   const navigate = useNavigate();
 
@@ -101,6 +111,55 @@ function Home() {
     });
 
     setFilteredStudents(filtered);
+  };
+
+  const handleAddStudent = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      console.log('Đang gửi request thêm sinh viên:', formData);
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/add-student`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(formData),
+          credentials: 'include'
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Response từ server:', result);
+
+      if (result.message) {
+        toast.success(result.message);
+        setShowAddForm(false);
+        setFormData({
+          mssv: "",
+          hoten: "",
+          khoa: "",
+          lop: "",
+          ngaysinh: ""
+        });
+        fetchStudents();
+      }
+    } catch (error) {
+      console.error('Chi tiết lỗi:', error);
+      toast.error(error.message || "Không thể thêm sinh viên");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
