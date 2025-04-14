@@ -16,10 +16,20 @@ const ClassSessions = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
+            console.log('API Response:', response.data);
 
-            if (response.data.success && Array.isArray(response.data.sessions)) {
-                setSessions(response.data.sessions);
+            // Kiểm tra và xử lý dữ liệu
+            if (response.data && response.data.success) {
+                const sessionsData = response.data.sessions || [];
+                if (Array.isArray(sessionsData)) {
+                    setSessions(sessionsData);
+                } else {
+                    console.error('Dữ liệu sessions không phải là mảng:', sessionsData);
+                    setSessions([]);
+                    toast.error('Dữ liệu ca học không hợp lệ');
+                }
             } else {
+                console.error('Response không hợp lệ:', response.data);
                 setSessions([]);
                 toast.error('Dữ liệu ca học không hợp lệ');
             }
@@ -38,13 +48,13 @@ const ClassSessions = () => {
             setLoading(true);
             const response = await axios.post(`${process.env.REACT_APP_API_URL}/class-sessions`, newSession);
 
-            if (response.data.success) {
+            if (response.data && response.data.success) {
                 toast.success('Thêm ca học thành công');
                 setShowAddForm(false);
                 setNewSession({ time_slot: '', room: '' });
                 fetchSessions();
             } else {
-                toast.error(response.data.message || 'Thêm ca học thất bại');
+                toast.error(response.data?.message || 'Thêm ca học thất bại');
             }
         } catch (error) {
             console.error('Lỗi khi thêm ca học:', error);
@@ -60,11 +70,11 @@ const ClassSessions = () => {
                 setLoading(true);
                 const response = await axios.delete(`${process.env.REACT_APP_API_URL}/class-sessions/${id}`);
 
-                if (response.data.success) {
+                if (response.data && response.data.success) {
                     toast.success('Xóa ca học thành công');
                     fetchSessions();
                 } else {
-                    toast.error(response.data.message || 'Xóa ca học thất bại');
+                    toast.error(response.data?.message || 'Xóa ca học thất bại');
                 }
             } catch (error) {
                 console.error('Lỗi khi xóa ca học:', error);
@@ -120,7 +130,7 @@ const ClassSessions = () => {
             <div className="sessions-list">
                 {loading ? (
                     <p>Đang tải dữ liệu...</p>
-                ) : sessions.length > 0 ? (
+                ) : sessions && sessions.length > 0 ? (
                     sessions.map(session => (
                         <div key={session.id} className="session-card">
                             <div className="session-details">
