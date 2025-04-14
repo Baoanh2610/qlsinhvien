@@ -382,26 +382,22 @@ app.put("/edit-student", (req, res) => {
 });
 
 // API xóa sinh viên
-app.delete("/delete-student", (req, res) => {
+app.post("/delete-student", (req, res) => {
   const { mssv } = req.body;
-
   if (!mssv) {
-    return res.status(400).json({ error: "Vui lòng cung cấp MSSV" });
+    return res.status(400).json({ error: "MSSV là bắt buộc" });
   }
 
   const query = "DELETE FROM students WHERE mssv = ?";
-
   db.query(query, [mssv], (err, result) => {
     if (err) {
       console.error("Lỗi khi xóa sinh viên:", err);
-      return res.status(500).json({ error: "Không thể xóa sinh viên" });
+      return res.status(500).json({ error: "Lỗi khi xóa sinh viên" });
     }
-
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Không tìm thấy sinh viên" });
     }
-
-    res.status(200).json({ message: "Xóa sinh viên thành công" });
+    res.json({ message: "Xóa sinh viên thành công" });
   });
 });
 
