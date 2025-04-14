@@ -46,7 +46,13 @@ function AddStudent() {
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          body: JSON.stringify(student),
+          body: JSON.stringify({
+            mssv: student.mssv,
+            hoten: student.hoten,
+            khoa: student.khoa,
+            lop: student.lop,
+            ngaysinh: student.ngaysinh
+          }),
           credentials: 'include'
         }
       );
