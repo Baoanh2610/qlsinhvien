@@ -9,7 +9,7 @@ function Home() {
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [search, setSearch] = useState({
     mssv: "",
-    hoTen: "",
+    hoten: "",
     lop: "",
   });
   const [showAddForm, setShowAddForm] = useState(false);
@@ -104,7 +104,7 @@ function Home() {
 
     const filtered = students.filter(student => {
       const matchMSSV = newSearch.mssv === "" || student.mssv.toLowerCase().includes(newSearch.mssv.toLowerCase());
-      const matchHoTen = newSearch.hoTen === "" || student.hoten.toLowerCase().includes(newSearch.hoTen.toLowerCase());
+      const matchHoTen = newSearch.hoten === "" || student.hoten.toLowerCase().includes(newSearch.hoten.toLowerCase());
       const matchLop = newSearch.lop === "" || student.lop.toLowerCase().includes(newSearch.lop.toLowerCase());
 
       return matchMSSV && matchHoTen && matchLop;
@@ -188,9 +188,9 @@ function Home() {
         />
         <input
           type="text"
-          name="hoTen"
+          name="hoten"
           placeholder="Họ Tên"
-          value={search.hoTen}
+          value={search.hoten}
           onChange={handleSearch}
         />
         <input
