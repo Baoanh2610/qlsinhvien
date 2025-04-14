@@ -95,7 +95,7 @@ function AppContent() {
             }
           />
           <Route
-            path="/addstudent"
+            path="/add-student"
             element={
               <ProtectedRoute allowedRole="admin">
                 <AddStudent />
