@@ -347,22 +347,35 @@ app.put("/edit-student", (req, res) => {
 });
 
 // API xóa sinh viên
-app.delete("/delete-student", (req, res) => {
+app.delete("/delete-student", async (req, res) => {
   const { mssv } = req.body;
-  const sql = "DELETE FROM students WHERE mssv = ?";
-  db.query(sql, [mssv], (err, result) => {
-    if (err) {
-      console.error("Lỗi khi xóa sinh viên:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi máy chủ"
-      });
-    }
+
+  if (!mssv) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin mssv"
+    });
+  }
+
+  try {
+    // Xóa sinh viên khỏi bảng members
+    await db.query(
+      "DELETE FROM members WHERE mssv = ?",
+      [mssv]
+    );
+
     res.json({
       success: true,
       message: "Xóa sinh viên thành công"
     });
-  });
+  } catch (error) {
+    console.error("Lỗi khi xóa sinh viên:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi xóa sinh viên",
+      error: error.message
+    });
+  }
 });
 
 // API lấy danh sách sinh viên theo ca học
