@@ -35,7 +35,8 @@ function AddStudent() {
     }
 
     try {
-      console.log('Đang gửi request thêm sinh viên:', student);
+      console.log('Dữ liệu sinh viên trước khi gửi:', student);
+      console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
 
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/add-student`,
@@ -50,8 +51,9 @@ function AddStudent() {
         }
       );
 
+      console.log('Response status:', response.status);
       const result = await response.json();
-      console.log('Response từ server:', result);
+      console.log('Response data:', result);
 
       if (response.ok) {
         toast.success(result.message || "Thêm sinh viên thành công");
@@ -60,7 +62,7 @@ function AddStudent() {
         throw new Error(result.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
-      console.error('Chi tiết lỗi:', error);
+      console.error('Lỗi khi thêm sinh viên:', error);
       toast.error(error.message || "Không thể thêm sinh viên");
     } finally {
       setLoading(false);
