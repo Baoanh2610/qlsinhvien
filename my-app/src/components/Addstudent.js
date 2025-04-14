@@ -56,7 +56,6 @@ function AddStudent() {
       if (response.ok) {
         toast.success(result.message || "Thêm sinh viên thành công");
         setStudent({ mssv: "", hoTen: "", khoa: "", lop: "", ngaySinh: "" });
-        fetchStudents();
       } else {
         throw new Error(result.error || "Không thể thêm sinh viên");
       }
