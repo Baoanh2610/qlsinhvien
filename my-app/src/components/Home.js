@@ -132,8 +132,9 @@ function Home() {
         setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
         // Ẩn form
         setShowAddForm(false);
-        // Tải lại danh sách sinh viên từ server
-        await fetchStudents();
+
+        // Chuyển hướng về trang Home (refresh lại component)
+        navigate('/', { replace: true });
       } else {
         throw new Error(response.data.error || "Không thể thêm sinh viên");
       }
@@ -162,8 +163,14 @@ function Home() {
         // Hiển thị thông báo thành công
         toast.success(response.data.message || "Xóa sinh viên thành công!");
 
-        // Tải lại danh sách sinh viên từ server để có dữ liệu mới nhất
-        await fetchStudents();
+        // Cập nhật state trực tiếp mà không gọi API
+        const updatedStudents = students.filter(student => student.mssv !== mssv);
+        setStudents(updatedStudents);
+
+        // Cập nhật filtered students nếu đang tìm kiếm
+        setFilteredStudents(prevFiltered =>
+          prevFiltered.filter(student => student.mssv !== mssv)
+        );
       } else {
         throw new Error(response.data.error || "Không thể xóa sinh viên");
       }
