@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { toast } from 'react-toastify';
-import axios from 'axios';
 
 function Home() {
   const [students, setStudents] = useState([]);
@@ -14,33 +13,31 @@ function Home() {
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     mssv: "",
     hoten: "",
     khoa: "",
     lop: "",
-    ngaysinh: ""
+    ngaysinh: "",
   });
 
   const navigate = useNavigate();
 
-  // 📌 HÀM LẤY DANH SÁCH SINH VIÊN
+  // Lấy danh sách sinh viên từ server
   const fetchStudents = async () => {
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/get-students`
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/get-students`, {
+        credentials: 'include',
+      });
       const data = await response.json();
       if (data.success) {
         setStudents(data.students);
         setFilteredStudents(data.students);
       } else {
-        console.error("Lỗi khi lấy dữ liệu:", data.message);
         toast.error("Không thể tải danh sách sinh viên");
       }
     } catch (error) {
-      console.error("Lỗi kết nối đến backend:", error);
+      console.error("Lỗi kết nối server:", error);
       toast.error("Không thể kết nối đến server");
     }
   };
@@ -49,63 +46,27 @@ function Home() {
     fetchStudents();
   }, []);
 
-  // 📌 HÀM XÓA SINH VIÊN
-  const handleDeleteStudent = async (mssv) => {
-    if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/delete-student`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            },
-            body: JSON.stringify({ mssv }),
-            credentials: 'include'
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Response từ server:', result);
-
-        if (result.success) {
-          setStudents(students.filter(student => student.mssv !== mssv));
-          setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
-          toast.success("Xóa sinh viên thành công");
-        } else {
-          toast.error(result.message || "Không thể xóa sinh viên");
-        }
-      } catch (error) {
-        console.error('Chi tiết lỗi:', {
-          message: error.message,
-          status: error.status
-        });
-        toast.error("Không thể xóa sinh viên. Vui lòng thử lại sau.");
-      }
-    }
-  };
-
-  // 📌 HÀM TÌM KIẾM SINH VIÊN THEO THỜI GIAN THỰC
+  // Xử lý tìm kiếm sinh viên
   const handleSearch = (e) => {
     const { name, value } = e.target;
     const newSearch = { ...search, [name]: value };
     setSearch(newSearch);
 
-    // Nếu tất cả các trường tìm kiếm đều trống, trả về danh sách gốc
-    if (Object.values(newSearch).every(val => val === "")) {
+    if (Object.values(newSearch).every((val) => val === "")) {
       setFilteredStudents(students);
       return;
     }
 
-    const filtered = students.filter(student => {
-      const matchMSSV = newSearch.mssv === "" || student.mssv.toLowerCase().includes(newSearch.mssv.toLowerCase());
-      const matchHoTen = newSearch.hoten === "" || student.hoten.toLowerCase().includes(newSearch.hoten.toLowerCase());
-      const matchLop = newSearch.lop === "" || student.lop.toLowerCase().includes(newSearch.lop.toLowerCase());
+    const filtered = students.filter((student) => {
+      const matchMSSV =
+        newSearch.mssv === "" ||
+        student.mssv.toLowerCase().includes(newSearch.mssv.toLowerCase());
+      const matchHoTen =
+        newSearch.hoten === "" ||
+        student.hoten.toLowerCase().includes(newSearch.hoten.toLowerCase());
+      const matchLop =
+        newSearch.lop === "" ||
+        student.lop.toLowerCase().includes(newSearch.lop.toLowerCase());
 
       return matchMSSV && matchHoTen && matchLop;
     });
@@ -113,64 +74,95 @@ function Home() {
     setFilteredStudents(filtered);
   };
 
+  // Xử lý thay đổi input trong form thêm sinh viên
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // Thêm sinh viên
   const handleAddStudent = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
-    // Kiểm tra dữ liệu trước khi gửi
-    if (!formData.mssv || !formData.hoten || !formData.khoa || !formData.lop || !formData.ngaysinh) {
+    if (
+      !formData.mssv ||
+      !formData.hoten ||
+      !formData.khoa ||
+      !formData.lop ||
+      !formData.ngaysinh
+    ) {
       toast.error("Vui lòng nhập đầy đủ thông tin!");
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Đang gửi request thêm sinh viên:', formData);
-
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/add-student`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(formData),
-          credentials: 'include'
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/add-student`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify(formData),
+        credentials: 'include',
+      });
 
       const result = await response.json();
-      console.log('Response từ server:', result);
 
       if (response.ok) {
         toast.success(result.message || "Thêm sinh viên thành công");
-        setShowAddForm(false);
         setFormData({
           mssv: "",
           hoten: "",
           khoa: "",
           lop: "",
-          ngaysinh: ""
+          ngaysinh: "",
         });
+        setShowAddForm(false);
         fetchStudents();
       } else {
         throw new Error(result.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
-      console.error('Chi tiết lỗi:', error);
+      console.error("Lỗi khi thêm sinh viên:", error);
       toast.error(error.message || "Không thể thêm sinh viên");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Xóa sinh viên
+  const handleDeleteStudent = async (mssv) => {
+    if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/delete-student`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify({ mssv }),
+          credentials: 'include',
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setStudents(students.filter((student) => student.mssv !== mssv));
+          setFilteredStudents(filteredStudents.filter((student) => student.mssv !== mssv));
+          toast.success("Xóa sinh viên thành công");
+        } else {
+          toast.error(result.message || "Không thể xóa sinh viên");
+        }
+      } catch (error) {
+        console.error("Lỗi khi xóa sinh viên:", error);
+        toast.error("Không thể xóa sinh viên. Vui lòng thử lại.");
+      }
     }
   };
 
@@ -200,50 +192,10 @@ function Home() {
           value={search.lop}
           onChange={handleSearch}
         />
-        <button className="add-button" onClick={() => navigate("/addstudent")}>
-          Thêm Sinh Viên
+        <button className="add-button" onClick={() => setShowAddForm(!showAddForm)}>
+          {showAddForm ? "Ẩn Form" : "Thêm Sinh Viên"}
         </button>
       </div>
-
-      <table className="student-table">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>MSSV</th>
-            <th>Họ Tên</th>
-            <th>Khoa</th>
-            <th>Lớp</th>
-            <th>Ngày Sinh</th>
-            <th>Quản Lý</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.map((student, index) => (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{student.mssv}</td>
-              <td>{student.hoten}</td>
-              <td>{student.khoa}</td>
-              <td>{student.lop}</td>
-              <td>{student.ngaysinh}</td>
-              <td className="action-buttons">
-                <button
-                  className="delete-button"
-                  onClick={() => handleDeleteStudent(student.mssv)}
-                >
-                  Xóa
-                </button>
-                <button
-                  className="edit-button"
-                  onClick={() => navigate(`/editstudent/${student.mssv}`)}
-                >
-                  Sửa
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
       {showAddForm && (
         <div className="add-form">
@@ -260,7 +212,7 @@ function Home() {
             <input
               type="text"
               name="hoten"
-              placeholder="Họ tên"
+              placeholder="Họ Tên"
               value={formData.hoten}
               onChange={handleInputChange}
               required
@@ -288,15 +240,57 @@ function Home() {
               onChange={handleInputChange}
               required
             />
-            <button type="submit" disabled={loading}>
-              {loading ? "Đang thêm..." : "Thêm"}
-            </button>
-            <button type="button" onClick={() => setShowAddForm(false)}>
-              Hủy
-            </button>
+            <div className="form-buttons">
+              <button type="submit" disabled={loading}>
+                {loading ? "Đang thêm..." : "Thêm"}
+              </button>
+              <button type="button" onClick={() => setShowAddForm(false)}>
+                Hủy
+              </button>
+            </div>
           </form>
         </div>
       )}
+
+      <table className="student-table">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>MSSV</th>
+            <th>Họ Tên</th>
+            <th>Khoa</th>
+            <th>Lớp</th>
+            <th>Ngày Sinh</th>
+            <th>Quản Lý</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.map((student, index) => (
+            <tr key={student.mssv}>
+              <td>{index + 1}</td>
+              <td>{student.mssv}</td>
+              <td>{student.hoten}</td>
+              <td>{student.khoa}</td>
+              <td>{student.lop}</td>
+              <td>{student.ngaysinh}</td>
+              <td className="action-buttons">
+                <button
+                  className="delete-button"
+                  onClick={() => handleDeleteStudent(student.mssv)}
+                >
+                  Xóa
+                </button>
+                <button
+                  className="edit-button"
+                  onClick={() => navigate(`/editstudent/${student.mssv}`)}
+                >
+                  Sửa
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

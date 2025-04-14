@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./AddStudent.css";
 import { toast } from "react-hot-toast";
+import axios from 'axios';
 
 function AddStudent() {
   const [student, setStudent] = useState({
@@ -46,29 +47,16 @@ function AddStudent() {
       console.log('Dữ liệu sinh viên trước khi gửi:', requestData);
       console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/add-student`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "X-Requested-With": "XMLHttpRequest"
-          },
-          body: JSON.stringify(requestData),
-          credentials: 'include'
-        }
-      );
+      const response = await axios.post('/add-student', requestData);
 
       console.log('Response status:', response.status);
-      const result = await response.json();
-      console.log('Response data:', result);
+      console.log('Response data:', response.data);
 
-      if (response.ok) {
-        toast.success(result.message || "Thêm sinh viên thành công");
+      if (response.status === 200) {
+        toast.success(response.data.message || "Thêm sinh viên thành công");
         setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
       } else {
-        throw new Error(result.error || "Không thể thêm sinh viên");
+        throw new Error(response.data.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
       console.error('Lỗi khi thêm sinh viên:', error);
