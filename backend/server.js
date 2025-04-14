@@ -364,7 +364,7 @@ app.delete("/delete-student", async (req, res) => {
     console.log('Đang xóa sinh viên có MSSV:', mssv);
 
     const [result] = await db.query(
-      "DELETE FROM members WHERE mssv = ?",
+      "DELETE FROM students WHERE mssv = ?",
       [mssv]
     );
 
