@@ -19,6 +19,7 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -166,6 +167,50 @@ const LoginPage = () => {
       lop: "",
       ngaysinh: "",
     });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login`,
+        { email: formData.email, password: formData.password, role: isAdmin ? "admin" : "student" },
+        {
+          withCredentials: true,
+          timeout: 10000
+        }
+      );
+
+      console.log('Response from backend:', response.data);
+
+      if (response.data.success) {
+        // Lưu thông tin user vào localStorage
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        // Chuyển hướng dựa trên role
+        if (response.data.user.role === 'admin') {
+          navigate('/home');
+        } else {
+          navigate('/student-home');
+        }
+      } else {
+        setError(response.data.message || "Đăng nhập thất bại");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error.response) {
+        setError(error.response.data.message || "Đăng nhập thất bại");
+      } else if (error.request) {
+        setError("Không thể kết nối đến máy chủ");
+      } else {
+        setError("Có lỗi xảy ra khi đăng nhập");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
