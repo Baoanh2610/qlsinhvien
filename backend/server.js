@@ -347,53 +347,22 @@ app.put("/edit-student", (req, res) => {
 });
 
 // API xóa sinh viên
-app.delete("/delete-student", async (req, res) => {
-  console.log('Nhận request xóa sinh viên:', req.body);
-
+app.delete("/delete-student", (req, res) => {
   const { mssv } = req.body;
-
-  if (!mssv) {
-    console.log('Thiếu thông tin mssv');
-    return res.status(400).json({
-      success: false,
-      message: "Thiếu thông tin mssv"
-    });
-  }
-
-  try {
-    console.log('Đang xóa sinh viên có MSSV:', mssv);
-
-    const sql = "DELETE FROM students WHERE mssv = ?";
-    db.query(sql, [mssv], (err, result) => {
-      if (err) {
-        console.error("Lỗi khi xóa sinh viên:", err);
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi xóa sinh viên",
-          error: err.message
-        });
-      }
-
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Không tìm thấy sinh viên cần xóa"
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Xóa sinh viên thành công"
+  const sql = "DELETE FROM students WHERE mssv = ?";
+  db.query(sql, [mssv], (err, result) => {
+    if (err) {
+      console.error("Lỗi khi xóa sinh viên:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
       });
+    }
+    res.json({
+      success: true,
+      message: "Xóa sinh viên thành công"
     });
-  } catch (error) {
-    console.error("Lỗi khi xóa sinh viên:", error);
-    res.status(500).json({
-      success: false,
-      message: "Lỗi khi xóa sinh viên",
-      error: error.message
-    });
-  }
+  });
 });
 
 // API lấy danh sách sinh viên theo ca học
@@ -796,7 +765,7 @@ app.delete('/remove-student-from-session', async (req, res) => {
   try {
     // Xóa sinh viên khỏi bảng class_session_student
     await db.query(
-      'DELETE FROM class_session_students WHERE session_id = ? AND mssv = ?',
+      'DELETE FROM class_session_student WHERE session_id = ? AND mssv = ?',
       [session_id, mssv]
     );
 
