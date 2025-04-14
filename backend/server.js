@@ -348,9 +348,12 @@ app.put("/edit-student", (req, res) => {
 
 // API xóa sinh viên
 app.delete("/delete-student", async (req, res) => {
+  console.log('Nhận request xóa sinh viên:', req.body);
+
   const { mssv } = req.body;
 
   if (!mssv) {
+    console.log('Thiếu thông tin mssv');
     return res.status(400).json({
       success: false,
       message: "Thiếu thông tin mssv"
@@ -358,11 +361,21 @@ app.delete("/delete-student", async (req, res) => {
   }
 
   try {
-    // Xóa sinh viên khỏi bảng members
-    await db.query(
+    console.log('Đang xóa sinh viên có MSSV:', mssv);
+
+    const [result] = await db.query(
       "DELETE FROM members WHERE mssv = ?",
       [mssv]
     );
+
+    console.log('Kết quả xóa:', result);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy sinh viên cần xóa"
+      });
+    }
 
     res.json({
       success: true,
