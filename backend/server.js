@@ -180,9 +180,20 @@ app.put("/register/:id", async (req, res) => {
 
 // API thêm sinh viên
 app.post("/add-student", (req, res) => {
+  console.log('Request body:', req.body);
+  console.log('Request headers:', req.headers);
+
   const { mssv, hoten, khoa, lop, ngaysinh } = req.body;
+  console.log('Parsed data:', { mssv, hoten, khoa, lop, ngaysinh });
 
   if (!mssv || !hoten || !khoa || !lop || !ngaysinh) {
+    console.log('Missing fields:', {
+      mssv: !mssv,
+      hoten: !hoten,
+      khoa: !khoa,
+      lop: !lop,
+      ngaysinh: !ngaysinh
+    });
     return res.status(400).json({ error: "Vui lòng nhập đầy đủ thông tin!" });
   }
 
@@ -192,6 +203,7 @@ app.post("/add-student", (req, res) => {
       console.error("Lỗi khi thêm sinh viên:", err);
       return res.status(500).json({ error: "Lỗi máy chủ!" });
     }
+    console.log('Insert result:', result);
     res.json({ message: "Thêm sinh viên thành công!", id: result.insertId });
   });
 });
