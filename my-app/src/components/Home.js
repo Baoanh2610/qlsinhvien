@@ -27,6 +27,7 @@ function Home() {
   // Lấy danh sách sinh viên từ server
   const fetchStudents = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`${process.env.REACT_APP_API_URL}/get-students`, {
         credentials: 'include',
       });
@@ -40,6 +41,8 @@ function Home() {
     } catch (error) {
       console.error("Lỗi kết nối server:", error);
       toast.error("Không thể kết nối đến server");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,24 +114,32 @@ function Home() {
       };
 
       console.log('Dữ liệu sinh viên trước khi gửi:', requestData);
-      console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
 
-      const response = await axios.post('/add-student', requestData);
+      // Đảm bảo sử dụng URL đầy đủ
+      const url = `${process.env.REACT_APP_API_URL}/add-student`;
+      console.log('API URL:', url);
+
+      const response = await axios.post(url, requestData, {
+        withCredentials: true
+      });
 
       console.log('Response status:', response.status);
       console.log('Response data:', response.data);
 
       if (response.status === 200) {
         toast.success(response.data.message || "Thêm sinh viên thành công");
+        // Reset form
         setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
+        // Ẩn form
         setShowAddForm(false);
-        fetchStudents();
+        // Tải lại danh sách sinh viên từ server
+        await fetchStudents();
       } else {
         throw new Error(response.data.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
       console.error('Lỗi khi thêm sinh viên:', error);
-      toast.error(error.message || "Không thể thêm sinh viên");
+      toast.error(error.response?.data?.error || error.message || "Không thể thêm sinh viên");
     } finally {
       setLoading(false);
     }
@@ -141,21 +152,26 @@ function Home() {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/delete-student`, { mssv });
+      setLoading(true);
+      const url = `${process.env.REACT_APP_API_URL}/delete-student`;
+      const response = await axios.post(url, { mssv }, {
+        withCredentials: true
+      });
 
-      if (response.data.message) {
-        // Cập nhật danh sách sinh viên
-        setStudents(students.filter(student => student.mssv !== mssv));
-        setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
-
+      if (response.data.success || response.status === 200) {
         // Hiển thị thông báo thành công
-        toast.success("Xóa sinh viên thành công!");
+        toast.success(response.data.message || "Xóa sinh viên thành công!");
+
+        // Tải lại danh sách sinh viên từ server để có dữ liệu mới nhất
+        await fetchStudents();
       } else {
         throw new Error(response.data.error || "Không thể xóa sinh viên");
       }
     } catch (error) {
       console.error('Lỗi khi xóa sinh viên:', error);
-      toast.error(error.response?.data?.error || "Không thể xóa sinh viên");
+      toast.error(error.response?.data?.error || error.message || "Không thể xóa sinh viên");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,7 +255,7 @@ function Home() {
             />
             <div className="form-buttons">
               <button type="submit" disabled={loading}>
-                {loading ? "Đang thêm..." : "Thêm"}
+                {loading ? "Đang xử lý..." : "Thêm"}
               </button>
               <button type="button" onClick={() => setShowAddForm(false)}>
                 Hủy
@@ -248,6 +264,8 @@ function Home() {
           </form>
         </div>
       )}
+
+      {loading && <div className="loading">Đang tải dữ liệu...</div>}
 
       <table className="student-table">
         <thead>
@@ -262,30 +280,40 @@ function Home() {
           </tr>
         </thead>
         <tbody>
-          {filteredStudents.map((student, index) => (
-            <tr key={student.mssv}>
-              <td>{index + 1}</td>
-              <td>{student.mssv}</td>
-              <td>{student.hoten}</td>
-              <td>{student.khoa}</td>
-              <td>{student.lop}</td>
-              <td>{student.ngaysinh}</td>
-              <td className="action-buttons">
-                <button
-                  className="delete-button"
-                  onClick={() => handleDeleteStudent(student.mssv)}
-                >
-                  Xóa
-                </button>
-                <button
-                  className="edit-button"
-                  onClick={() => navigate(`/editstudent/${student.mssv}`)}
-                >
-                  Sửa
-                </button>
+          {filteredStudents.length > 0 ? (
+            filteredStudents.map((student, index) => (
+              <tr key={student.mssv}>
+                <td>{index + 1}</td>
+                <td>{student.mssv}</td>
+                <td>{student.hoten}</td>
+                <td>{student.khoa}</td>
+                <td>{student.lop}</td>
+                <td>{student.ngaysinh}</td>
+                <td className="action-buttons">
+                  <button
+                    className="edit-button"
+                    onClick={() => navigate(`/editstudent/${student.mssv}`)}
+                    disabled={loading}
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDeleteStudent(student.mssv)}
+                    disabled={loading}
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" className="no-data">
+                {loading ? "Đang tải dữ liệu..." : "Không có sinh viên nào"}
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
