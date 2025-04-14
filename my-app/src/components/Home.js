@@ -102,6 +102,9 @@ function Home() {
     }
 
     try {
+      console.log('Dữ liệu sinh viên trước khi gửi:', student);
+      console.log('API URL:', `${process.env.REACT_APP_API_URL}/add-student`);
+
       const response = await axios.post('/add-student', {
         mssv: student.mssv,
         hoten: student.hoten,
@@ -109,6 +112,9 @@ function Home() {
         lop: student.lop,
         ngaysinh: student.ngaysinh
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response data:', response.data);
 
       if (response.status === 200) {
         toast.success(response.data.message || "Thêm sinh viên thành công");
