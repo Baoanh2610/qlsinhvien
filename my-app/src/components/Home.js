@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./Home.css";
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 function Home() {
   const [students, setStudents] = useState([]);
@@ -13,7 +14,7 @@ function Home() {
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [student, setStudent] = useState({
     mssv: "",
     hoten: "",
     khoa: "",
@@ -75,9 +76,9 @@ function Home() {
   };
 
   // Xử lý thay đổi input trong form thêm sinh viên
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setStudent((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -88,60 +89,38 @@ function Home() {
     e.preventDefault();
     setLoading(true);
 
-    const trimmedFormData = {
-      mssv: formData.mssv.trim(),
-      hoten: formData.hoten.trim(),
-      khoa: formData.khoa.trim(),
-      lop: formData.lop.trim(),
-      ngaysinh: formData.ngaysinh.trim(),
-    };
-
-    // Kiểm tra chuỗi rỗng
     if (
-      trimmedFormData.mssv === "" ||
-      trimmedFormData.hoten === "" ||
-      trimmedFormData.khoa === "" ||
-      trimmedFormData.lop === "" ||
-      trimmedFormData.ngaysinh === ""
+      !student.mssv ||
+      !student.hoten ||
+      !student.khoa ||
+      !student.lop ||
+      !student.ngaysinh
     ) {
-      toast.error("Vui lòng nhập đầy đủ thông tin, không để trống!");
+      toast.error("Vui lòng nhập đầy đủ thông tin!");
       setLoading(false);
       return;
     }
 
     try {
-      console.log('Payload gửi đi:', trimmedFormData);
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/add-student`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: JSON.stringify(trimmedFormData),
-        credentials: 'include',
+      const response = await axios.post('/add-student', {
+        mssv: student.mssv,
+        hoten: student.hoten,
+        khoa: student.khoa,
+        lop: student.lop,
+        ngaysinh: student.ngaysinh
       });
 
-      const result = await response.json();
-      console.log('Phản hồi từ server:', result);
-
-      if (response.ok) {
-        toast.success(result.message || "Thêm sinh viên thành công");
-        setFormData({
-          mssv: "",
-          hoten: "",
-          khoa: "",
-          lop: "",
-          ngaysinh: "",
-        });
+      if (response.status === 200) {
+        toast.success(response.data.message || "Thêm sinh viên thành công");
+        setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
         setShowAddForm(false);
         fetchStudents();
       } else {
-        toast.error(result.error || "Không thể thêm sinh viên");
+        throw new Error(response.data.error || "Không thể thêm sinh viên");
       }
     } catch (error) {
-      console.error("Lỗi khi thêm sinh viên:", error);
-      toast.error("Không thể thêm sinh viên: " + error.message);
+      console.error('Lỗi khi thêm sinh viên:', error);
+      toast.error(error.message || "Không thể thêm sinh viên");
     } finally {
       setLoading(false);
     }
@@ -216,8 +195,8 @@ function Home() {
               type="text"
               name="mssv"
               placeholder="MSSV"
-              value={formData.mssv}
-              onChange={handleInputChange}
+              value={student.mssv}
+              onChange={handleChange}
               required
               maxLength="20"
             />
@@ -225,8 +204,8 @@ function Home() {
               type="text"
               name="hoten"
               placeholder="Họ Tên"
-              value={formData.hoten}
-              onChange={handleInputChange}
+              value={student.hoten}
+              onChange={handleChange}
               required
               maxLength="100"
             />
@@ -234,8 +213,8 @@ function Home() {
               type="text"
               name="khoa"
               placeholder="Khoa"
-              value={formData.khoa}
-              onChange={handleInputChange}
+              value={student.khoa}
+              onChange={handleChange}
               required
               maxLength="50"
             />
@@ -243,16 +222,16 @@ function Home() {
               type="text"
               name="lop"
               placeholder="Lớp"
-              value={formData.lop}
-              onChange={handleInputChange}
+              value={student.lop}
+              onChange={handleChange}
               required
               maxLength="50"
             />
             <input
               type="date"
               name="ngaysinh"
-              value={formData.ngaysinh}
-              onChange={handleInputChange}
+              value={student.ngaysinh}
+              onChange={handleChange}
               required
             />
             <div className="form-buttons">
@@ -306,6 +285,12 @@ function Home() {
           ))}
         </tbody>
       </table>
+
+      <div className="action-buttons">
+        <Link to="/group-management" className="group-management-btn">
+          Quản Lý Nhóm
+        </Link>
+      </div>
     </div>
   );
 }
