@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 function Home() {
   const [students, setStudents] = useState([]);
@@ -42,24 +43,20 @@ function Home() {
   const handleDeleteStudent = async (mssv) => {
     if (window.confirm(`Bạn có chắc muốn xóa sinh viên có MSSV: ${mssv}?`)) {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/delete-student`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mssv }),
-          }
-        );
+        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/delete-student`, {
+          data: { mssv },
+          withCredentials: true
+        });
 
-        const result = await response.json();
-        if (result.success) {
+        if (response.data.success) {
+          setStudents(students.filter(student => student.mssv !== mssv));
+          setFilteredStudents(filteredStudents.filter(student => student.mssv !== mssv));
           toast.success("Xóa sinh viên thành công");
-          fetchStudents();
         } else {
-          toast.error(result.message);
+          toast.error(response.data.message || "Không thể xóa sinh viên");
         }
       } catch (error) {
-        console.error("Lỗi khi xóa sinh viên:", error);
+        console.error('Lỗi khi xóa sinh viên:', error);
         toast.error("Không thể xóa sinh viên");
       }
     }
