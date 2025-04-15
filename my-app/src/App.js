@@ -20,7 +20,7 @@ import Attendance from "./components/attendance";
 import EditStudent from "./components/EditStudent";
 import StudentHome from "./components/StudentHome";
 import StudentProfile from "./components/StudentProfile";
-import ClassSessions from "./components/ClassSessions";
+import ClassSessionsNew from "./components/ClassSessionsNew";
 import StudentAttendance from "./components/StudentAttendance";
 import StudentSchedule from "./components/StudentSchedule";
 import StudentGroup from "./components/StudentGroup"; // Thêm import mới
@@ -122,7 +122,7 @@ function AppContent() {
             path="/class-management"
             element={
               <ProtectedRoute allowedRole="admin">
-                <ClassSessions />
+                <ClassSessionsNew />
               </ProtectedRoute>
             }
           />
