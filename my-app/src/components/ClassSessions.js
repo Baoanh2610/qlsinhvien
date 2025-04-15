@@ -11,10 +11,13 @@ const ClassSessions = () => {
         try {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
-            console.log('🔥 Response full:', response.data);
+
+            console.log('🔥 Full response:', response);
+            console.log('📦 response.data:', response.data);
 
             const rawSessions = response?.data?.sessions;
-            console.log('📦 sessions trả về từ API:', rawSessions);
+            console.log('🔍 rawSessions:', rawSessions);
+            console.log('🔍 typeof rawSessions:', typeof rawSessions);
 
             if (response?.data?.success && Array.isArray(rawSessions)) {
                 const formattedSessions = rawSessions.map(session => ({
@@ -32,12 +35,16 @@ const ClassSessions = () => {
             }
         } catch (error) {
             console.error("💥 Lỗi khi tải danh sách ca học:", error);
+            if (error.response) {
+                console.error("💢 error.response.data:", error.response.data);
+            }
             toast.error("Không thể tải danh sách ca học");
             setSessions([]);
         } finally {
             setLoading(false);
         }
     };
+
 
     useEffect(() => {
         fetchSessions();
