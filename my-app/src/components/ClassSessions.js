@@ -4,55 +4,50 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const ClassSessions = () => {
-    const [sessions, setSessions] = useState([]);
+    const [sessions, setSessions] = useState({});
     const [loading, setLoading] = useState(false);
 
     const fetchSessions = async () => {
         try {
             setLoading(true);
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
+            console.log('Response from backend:', response.data);
 
-            console.log('🔥 Full response:', response);
-            console.log('📦 response.data:', response.data);
+            if (response.data && response.data.success) {
+                const sessionsData = response.data.sessions;
 
-            const rawSessions = response?.data?.sessions;
-            console.log('🔍 rawSessions:', rawSessions);
-            console.log('🔍 typeof rawSessions:', typeof rawSessions);
+                // Format lại ngày tháng cho từng session
+                const formattedSessions = {};
+                Object.keys(sessionsData).forEach(key => {
+                    const session = sessionsData[key];
+                    formattedSessions[key] = {
+                        ...session,
+                        date: new Date(session.date).toISOString().split('T')[0],
+                        created_at: new Date(session.created_at).toLocaleString()
+                    };
+                });
 
-            if (response?.data?.success && Array.isArray(rawSessions)) {
-                const formattedSessions = rawSessions.map(session => ({
-                    ...session,
-                    date: new Date(session.date).toISOString().split('T')[0],
-                    created_at: new Date(session.created_at).toLocaleString()
-                }));
-
-                console.log('✅ formattedSessions:', formattedSessions);
                 setSessions(formattedSessions);
             } else {
-                console.error('❌ Dữ liệu ca học không hợp lệ:', response.data);
+                console.error('Dữ liệu ca học không hợp lệ:', response.data);
+                setSessions({});
                 toast.error("Dữ liệu ca học không hợp lệ");
-                setSessions([]);
             }
         } catch (error) {
-            console.error("💥 Lỗi khi tải danh sách ca học:", error);
-            if (error.response) {
-                console.error("💢 error.response.data:", error.response.data);
-            }
+            console.error("Lỗi khi tải danh sách ca học:", error);
             toast.error("Không thể tải danh sách ca học");
-            setSessions([]);
+            setSessions({});
         } finally {
             setLoading(false);
         }
     };
 
-
     useEffect(() => {
         fetchSessions();
     }, []);
 
-    const sessionsList = Array.isArray(sessions) ? sessions : [];
-    console.log('🔍 sessions từ state:', sessions);
-    console.log('🧪 sessionsList sau kiểm tra:', sessionsList);
+    // Chuyển đổi object sessions thành array để render
+    const sessionsArray = Object.values(sessions);
 
     return (
         <div className="class-sessions-container">
@@ -60,7 +55,7 @@ const ClassSessions = () => {
 
             {loading ? (
                 <p>Đang tải dữ liệu...</p>
-            ) : sessionsList.length > 0 ? (
+            ) : sessionsArray.length > 0 ? (
                 <div className="sessions-list">
                     <table>
                         <thead>
@@ -72,7 +67,7 @@ const ClassSessions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sessionsList.map(session => (
+                            {sessionsArray.map(session => (
                                 <tr key={session.id}>
                                     <td>{session.date}</td>
                                     <td>{session.time_slot}</td>
