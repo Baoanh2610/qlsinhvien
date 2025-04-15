@@ -13,7 +13,7 @@ const ClassSessions = () => {
             const response = await axios.get(`${process.env.REACT_APP_API_URL}/class-sessions`);
             console.log('Response from backend:', response.data);
 
-            if (response.data.success && Array.isArray(response.data.sessions)) {
+            if (response.data && response.data.success && Array.isArray(response.data.sessions)) {
                 // Format lại ngày tháng để hiển thị đúng
                 const formattedSessions = response.data.sessions.map(session => ({
                     ...session,
@@ -40,13 +40,16 @@ const ClassSessions = () => {
         fetchSessions();
     }, []);
 
+    // Kiểm tra sessions có phải là mảng không
+    const sessionsList = Array.isArray(sessions) ? sessions : [];
+
     return (
         <div className="class-sessions-container">
             <h2>Danh Sách Ca Học</h2>
 
             {loading ? (
                 <p>Đang tải dữ liệu...</p>
-            ) : sessions.length > 0 ? (
+            ) : sessionsList.length > 0 ? (
                 <div className="sessions-list">
                     <table>
                         <thead>
@@ -58,7 +61,7 @@ const ClassSessions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sessions.map(session => (
+                            {sessionsList.map(session => (
                                 <tr key={session.id}>
                                     <td>{session.date}</td>
                                     <td>{session.time_slot}</td>
