@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 
 const ClassSessions = () => {
-    const [sessions, setSessions] = useState({});
+    const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const fetchSessions = async () => {
@@ -14,30 +14,24 @@ const ClassSessions = () => {
             console.log('Response from backend:', response.data);
 
             if (response.data && response.data.success) {
-                const sessionsData = response.data.sessions;
+                // Kiểm tra và đảm bảo dữ liệu là một mảng
+                const sessionsData = Array.isArray(response.data.sessions)
+                    ? response.data.sessions
+                    : Object.values(response.data.sessions || {});
+
                 console.log('Sessions data:', sessionsData);
 
-                // Format lại ngày tháng cho từng session
-                const formattedSessions = {};
-                Object.keys(sessionsData).forEach(key => {
-                    const session = sessionsData[key];
-                    formattedSessions[key] = {
-                        ...session,
-                        date: new Date(session.date).toISOString().split('T')[0],
-                        created_at: new Date(session.created_at).toLocaleString()
-                    };
-                });
-
-                setSessions(formattedSessions);
+                // Dữ liệu đã được format từ server, không cần format lại
+                setSessions(sessionsData);
             } else {
                 console.error('Dữ liệu ca học không hợp lệ:', response.data);
-                setSessions({});
+                setSessions([]);
                 toast.error("Dữ liệu ca học không hợp lệ");
             }
         } catch (error) {
             console.error("Lỗi khi tải danh sách ca học:", error);
             toast.error("Không thể tải danh sách ca học");
-            setSessions({});
+            setSessions([]);
         } finally {
             setLoading(false);
         }
@@ -47,17 +41,14 @@ const ClassSessions = () => {
         fetchSessions();
     }, []);
 
-    // Lấy danh sách các session để render
-    const sessionList = Object.values(sessions);
-
     return (
         <div className="class-sessions-container">
             <h2>Danh Sách Ca Học</h2>
 
             {loading ? (
-                <p>Đang tải dữ liệu...</p>
-            ) : sessionList.length > 0 ? (
-                <div className="sessions-list">
+                <div className="loading">Đang tải dữ liệu...</div>
+            ) : sessions.length > 0 ? (
+                <div className="session-list">
                     <table>
                         <thead>
                             <tr>
@@ -68,7 +59,7 @@ const ClassSessions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sessionList.map(session => (
+                            {sessions.map(session => (
                                 <tr key={session.id}>
                                     <td>{session.date}</td>
                                     <td>{session.time_slot}</td>
@@ -80,7 +71,7 @@ const ClassSessions = () => {
                     </table>
                 </div>
             ) : (
-                <p>Không có ca học nào</p>
+                <div className="no-data">Không có ca học nào</div>
             )}
         </div>
     );
