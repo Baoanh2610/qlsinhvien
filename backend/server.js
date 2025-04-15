@@ -452,16 +452,17 @@ app.get("/class-sessions", (req, res) => {
       });
     }
 
-    // Chuyển đổi mảng thành object với id làm key
-    const sessionsObject = {};
-    results.forEach(session => {
-      sessionsObject[session.id] = session;
-    });
+    // Chuyển đổi kết quả thành mảng
+    const sessionsArray = results.map(session => ({
+      ...session,
+      date: new Date(session.date).toISOString().split('T')[0],
+      created_at: new Date(session.created_at).toLocaleString()
+    }));
 
-    console.log("Danh sách ca học:", sessionsObject);
+    console.log("Danh sách ca học:", sessionsArray);
     res.json({
       success: true,
-      sessions: sessionsObject
+      sessions: sessionsArray  // Đảm bảo luôn trả về mảng
     });
   });
 });
