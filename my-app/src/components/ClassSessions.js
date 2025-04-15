@@ -15,6 +15,7 @@ const ClassSessions = () => {
 
             if (response.data && response.data.success) {
                 const sessionsData = response.data.sessions;
+                console.log('Sessions data:', sessionsData);
 
                 // Format lại ngày tháng cho từng session
                 const formattedSessions = {};
@@ -46,8 +47,8 @@ const ClassSessions = () => {
         fetchSessions();
     }, []);
 
-    // Chuyển đổi object sessions thành array để render
-    const sessionsArray = Object.values(sessions);
+    // Lấy danh sách các session để render
+    const sessionList = Object.values(sessions);
 
     return (
         <div className="class-sessions-container">
@@ -55,7 +56,7 @@ const ClassSessions = () => {
 
             {loading ? (
                 <p>Đang tải dữ liệu...</p>
-            ) : sessionsArray.length > 0 ? (
+            ) : sessionList.length > 0 ? (
                 <div className="sessions-list">
                     <table>
                         <thead>
@@ -67,7 +68,7 @@ const ClassSessions = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {sessionsArray.map(session => (
+                            {sessionList.map(session => (
                                 <tr key={session.id}>
                                     <td>{session.date}</td>
                                     <td>{session.time_slot}</td>
