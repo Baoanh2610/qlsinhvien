@@ -1,0 +1,40 @@
+.student-notifications {
+    padding: 20px;
+}
+
+.notification-list {
+    list-style: none;
+    padding: 0;
+}
+
+.notification-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.notification-item.unread {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+}
+
+.notification-item.read {
+    background-color: #f5f5f5;
+    border-left: 4px solid #ccc;
+}
+
+.notification-item p {
+    margin: 0 0 10px;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #666;
+    margin-right: 10px;
+}
+
+.status {
+    font-size: 0.9em;
+    color: #666;
+}

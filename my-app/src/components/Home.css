@@ -1,0 +1,222 @@
+/* Home.css */
+.container {
+  display: flex;
+  height: 100vh;
+  font-family: sans-serif;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #444;
+  color: white;
+  padding: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar:hover {
+  background-color: #4a4a4a;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar .menu-item {
+  margin-bottom: 10px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.sidebar .menu-item:hover {
+  background-color: #555;
+  padding-left: 12px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #a0f0ad; /* Màu xám xanh nhạt cho trang home */
+  color: #333; /* Màu chữ tối nhẹ */
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.95); /* Nền trắng nhẹ trong suốt */
+  border-radius: 4px;
+  color: #444;
+}
+
+.admin-icon {
+  margin-right: 5px;
+  transition: transform 0.3s ease;
+}
+
+.admin-icon:hover {
+  transform: rotate(15deg);
+}
+
+.search-area {
+  display: flex;
+  width: 100%; /* Đồng bộ với width của student-table */
+  max-width: 100%; /* Đảm bảo không vượt quá container */
+  margin-bottom: 20px;
+  gap: 10px;
+  align-items: center; /* Căn giữa các phần tử con theo chiều dọc */
+}
+
+.search-area input {
+  padding: 8px;
+  border: 1px solid #d1d5db; /* Viền xám nhạt */
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.3s ease;
+  flex: 1; /* Input chiếm phần lớn không gian còn lại */
+}
+
+.search-area input:focus {
+  border-color: #666;
+  outline: none;
+}
+
+.search-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #ffeb3b; /* Tông vàng sáng */
+  color: black;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #fdd835;
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.search-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.add-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px; /* Bo góc mềm hơn */
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #4CAF50, #2e7d32); /* Gradient xanh lá sinh động */
+  font-weight: 600; /* Chữ đậm hơn */
+  text-transform: uppercase; /* Chữ in hoa */
+  letter-spacing: 0.5px; /* Khoảng cách chữ */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); /* Bóng nhẹ */
+}
+
+.add-button:hover {
+  background: linear-gradient(135deg, #45a049, #276d2a); /* Gradient đậm hơn khi hover */
+  transform: scale(1.08); /* Phóng to nhẹ hơn */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Bóng đậm hơn */
+}
+
+.add-button:active {
+  transform: scale(0.95); /* Thu nhỏ khi nhấn */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Giảm bóng */
+  background: linear-gradient(135deg, #3d8b40, #255e27); /* Gradient tối hơn khi nhấn */
+}
+
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.student-table th,
+.student-table td {
+  border: 1px solid #d1d5db; /* Viền xám nhạt */
+  padding: 8px;
+  text-align: left;
+}
+
+.student-table th {
+  background-color: #e5e7eb; /* Xám nhạt cho tiêu đề */
+  color: #374151; /* Chữ đậm hơn chút */
+}
+
+.student-table tr:hover {
+  background-color: #f1f5f9; /* Xám xanh nhạt khi hover */
+}
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.delete-button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  background-color: #f44336; /* Tông đỏ */
+  transition: all 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #e53935;
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+.edit-button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+  background-color: #2196F3; /* Tông xanh dương */
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #1e88e5;
+  transform: scale(1.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.edit-button:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+/* Icon styles */
+.menu-icon, .user-icon, .group-icon, .calendar-icon, .tasks-icon, .logout-icon {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover .menu-icon,
+.menu-item:hover .user-icon,
+.menu-item:hover .group-icon,
+.menu-item:hover .calendar-icon,
+.menu-item:hover .tasks-icon,
+.menu-item:hover .logout-icon {
+  transform: scale(1.1);
+}

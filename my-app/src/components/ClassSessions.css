@@ -1,0 +1,315 @@
+.class-sessions-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.class-sessions-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.add-session-btn {
+    background-color: #4ade80;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+
+.add-session-btn:hover {
+    background-color: #22c55e;
+}
+
+.add-session-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.student-selection {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    margin-top: 10px;
+}
+
+.student-selection::-webkit-scrollbar {
+    width: 8px;
+}
+
+.student-selection::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.student-selection::-webkit-scrollbar-thumb {
+    background: #4ade80;
+    border-radius: 4px;
+}
+
+.student-selection::-webkit-scrollbar-thumb:hover {
+    background: #22c55e;
+}
+
+.student-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: white;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.student-checkbox:hover {
+    background: #f1f5f9;
+    transform: translateX(5px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.student-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: #4ade80;
+}
+
+.student-checkbox label {
+    margin: 0;
+    font-weight: normal;
+    color: #475569;
+    cursor: pointer;
+    flex: 1;
+}
+
+.student-checkbox input[type="checkbox"]:checked + label {
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.submit-btn {
+    background-color: #4ade80;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #22c55e;
+}
+
+.submit-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.cancel-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+    background-color: #dc2626;
+}
+
+.sessions-list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.sessions-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sessions-list th,
+.sessions-list td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.sessions-list th {
+    background-color: #4ade80;
+    color: white;
+    font-weight: 500;
+}
+
+.sessions-list tr:hover {
+    background-color: #f9f9f9;
+}
+
+.student-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.student-list li {
+    padding: 4px 0;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.student-list li:last-child {
+    border-bottom: none;
+}
+
+.edit-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+}
+
+.edit-btn:hover {
+    background-color: #2980b9;
+}
+
+.delete-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+.edit-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.add-btn {
+    background-color: #4ade80;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-btn:hover {
+    background-color: #22c55e;
+}
+
+.remove-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.remove-btn:hover {
+    background-color: #dc2626;
+}
+
+.remove-member {
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.add-members {
+    margin-top: 10px;
+}
+
+.add-member-btn {
+    font-size: 20px;
+    color: #4ade80;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .class-sessions-container {
+        padding: 10px;
+    }
+
+    .sessions-list {
+        overflow-x: auto;
+    }
+
+    .sessions-list table {
+        min-width: 800px;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: 16px;
+    }
+
+    .student-selection {
+        max-height: 250px;
+    }
+
+    .edit-actions {
+        flex-direction: column;
+    }
+}
