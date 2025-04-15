@@ -23,7 +23,7 @@ import StudentProfile from "./components/StudentProfile";
 import ClassSessionsNew from "./components/ClassSessionsNew";
 import StudentAttendance from "./components/StudentAttendance";
 import StudentSchedule from "./components/StudentSchedule";
-import StudentGroup from "./components/StudentGroup"; // Thêm import mới
+import StudentGroup from "./components/StudentGroup";
 import axios from 'axios';
 
 // Cấu hình axios mặc định
