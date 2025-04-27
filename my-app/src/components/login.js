@@ -179,8 +179,10 @@ const LoginPage = () => {
         `${process.env.REACT_APP_API_URL}/login`,
         { email: formData.email, password: formData.password, role: isAdmin ? "admin" : "student" },
         {
-          withCredentials: true,
-          timeout: 10000
+          withCredentials: true, // Giữ nguyên để xử lý cookies/session
+          headers: {
+            "Content-Type": "application/json",
+          }
         }
       );
 

@@ -16,20 +16,32 @@ function EditStudent() {
 
   useEffect(() => {
     console.log("Đang gọi API với MSSV:", mssv);
-    fetch(`${process.env.REACT_APP_API_URL}/get-student?mssv=${mssv}`)
-      .then((res) => res.json())
+    fetch(`${process.env.REACT_APP_API_URL}/get-student/${mssv}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Để gửi cookie/session nếu cần
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("Dữ liệu API trả về:", data);
         if (data.success) {
           setStudent(data.student);
         } else {
-          toast.error("Không tìm thấy sinh viên!");
+          toast.error(data.message || "Không tìm thấy sinh viên!");
           navigate("/");
         }
       })
       .catch((error) => {
         console.error("Lỗi lấy dữ liệu sinh viên:", error);
-        toast.error("Không thể tải thông tin sinh viên");
+        toast.error("Không thể tải thông tin sinh viên. Vui lòng thử lại sau.");
+        navigate("/");
       });
   }, [mssv, navigate]);
 
@@ -41,25 +53,31 @@ function EditStudent() {
     console.log("Dữ liệu gửi đi:", student);
 
     fetch(`${process.env.REACT_APP_API_URL}/edit-student`, {
-      method: "POST",
+      method: "PUT", // Sửa thành PUT để khớp với endpoint trong server.js
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include", // Để gửi cookie/session nếu cần
       body: JSON.stringify(student),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("Phản hồi từ server:", data);
         if (data.success) {
           toast.success("Cập nhật thành công!");
           navigate("/");
         } else {
-          toast.error("Cập nhật thất bại: " + data.message);
+          toast.error(data.message || "Cập nhật thất bại!");
         }
       })
       .catch((error) => {
         console.error("Lỗi khi cập nhật sinh viên:", error);
-        toast.error("Không thể cập nhật thông tin sinh viên");
+        toast.error("Không thể cập nhật thông tin sinh viên. Vui lòng thử lại sau.");
       });
   };
 
