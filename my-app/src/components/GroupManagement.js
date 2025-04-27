@@ -22,7 +22,7 @@ const GroupManagement = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);  { cache: "no-store" }
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (data.success && data.data) {
@@ -39,7 +39,8 @@ const GroupManagement = () => {
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
         try {
             const groupResponse = await fetch(
-                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`
+                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`,
+                { cache: "no-store" }
             );
             const groupData = await groupResponse.json();
             if (groupData.success && groupData.groups) {
@@ -60,7 +61,8 @@ const GroupManagement = () => {
         async (sessionId) => {
             try {
                 const response = await fetch(
-                    `${process.env.REACT_APP_API_URL}/get-students-by-session?session_id=${sessionId}`
+                    `${process.env.REACT_APP_API_URL}/get-students-by-session?session_id=${sessionId}`,
+                    { cache: "no-store" }
                 );
                 if (!response.ok) throw new Error('Network response was not ok');
                 const data = await response.json();
@@ -84,7 +86,8 @@ const GroupManagement = () => {
     const fetchGroups = useCallback(async (sessionId) => {
         try {
             const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`
+                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`,
+                { cache: "no-store" }
             );
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
@@ -125,6 +128,7 @@ const GroupManagement = () => {
                             message: notificationMessage,
                             created_by: 1,
                         }),
+                        cache: "no-store",
                     }
                 );
 
@@ -206,18 +210,18 @@ const GroupManagement = () => {
                 toast.error('Vui lòng chọn sinh viên cho nhóm');
                 return;
             }
-
+    
             const payload = {
                 session_id: groupSettings.sessionId,
                 mode: groupSettings.groupMode,
                 min_members: groupSettings.minMembers,
                 max_members: groupSettings.maxMembers,
             };
-
+    
             if (groupSettings.groupMode !== 'random') {
                 payload.students = selectedStudents;
             }
-
+    
             setLoading(true);
             try {
                 const response = await fetch(
@@ -228,6 +232,7 @@ const GroupManagement = () => {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify(payload),
+                        cache: 'no-store', // 👉 thêm dòng này để luôn lấy dữ liệu mới
                     }
                 );
                 const data = await response.json();
@@ -251,6 +256,7 @@ const GroupManagement = () => {
         },
         [groupSettings, selectedStudents, selectedSession, fetchGroups, fetchStudents]
     );
+    
 
     const handleUpdateGroup = useCallback(
         async (groupId, updatedStudents) => {
@@ -267,6 +273,7 @@ const GroupManagement = () => {
                             id: groupId,
                             students: updatedStudents,
                         }),
+                        cache: 'no-store',
                     }
                 );
                 const data = await response.json();
@@ -293,6 +300,7 @@ const GroupManagement = () => {
             try {
                 const response = await fetch(
                     `${process.env.REACT_APP_API_URL}/delete-group?group_id=${groupId}`,
+                    {cache: 'no-store'},
                     { credentials: 'include' }
                 );
                 const data = await response.json();
