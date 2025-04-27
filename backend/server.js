@@ -819,43 +819,98 @@ app.get("/get-groups", (req, res) => {
 });
 
 app.post("/create-group", (req, res) => {
-  const { name, session_id, students } = req.body;
+  const { session_id, mode, min_members, max_members, students } = req.body;
 
-  if (!name || !session_id) {
+  if (!session_id || !mode) {
     return res.status(400).json({
       success: false,
-      message: "Thiếu thông tin tên nhóm hoặc session_id"
+      message: "Thiếu thông tin session_id hoặc mode"
     });
   }
 
-  const sql = "INSERT INTO student_groups (name, session_id) VALUES (?, ?)";
-  db.query(sql, [name, session_id], (err, result) => {
-    if (err) {
-      console.error("Lỗi khi tạo nhóm:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi máy chủ"
-      });
-    }
-    const groupId = result.insertId;
+  // Nếu chia ngẫu nhiên
+  if (mode === 'random') {
+    const getStudentsSql = `
+      SELECT s.mssv
+      FROM students s
+      INNER JOIN class_session_students css ON s.mssv = css.mssv
+      WHERE css.session_id = ?
+      AND s.mssv NOT IN (SELECT gm.mssv FROM group_members gm JOIN student_groups g ON gm.group_id = g.id WHERE g.session_id = ?)
+    `;
 
-    if (students && students.length > 0) {
-      const values = students.map(mssv => [groupId, mssv]);
-      const memberSql = "INSERT INTO group_members (group_id, mssv) VALUES ?";
-      db.query(memberSql, [values], err => {
-        if (err) {
-          console.error("Lỗi khi thêm sinh viên vào nhóm:", err);
-        }
-      });
-    }
+    db.query(getStudentsSql, [session_id, session_id], (err, studentsResult) => {
+      if (err) {
+        console.error("Lỗi khi lấy danh sách sinh viên:", err);
+        return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+      }
 
-    res.json({
-      success: true,
-      message: "Tạo nhóm thành công",
-      groupId
+      if (studentsResult.length === 0) {
+        return res.status(400).json({ success: false, message: "Không có sinh viên để chia nhóm" });
+      }
+
+      const shuffledStudents = studentsResult.sort(() => 0.5 - Math.random());
+      const groupSize = Math.min(Math.max(min_members, 2), max_members || 5);
+      const groups = [];
+
+      for (let i = 0; i < shuffledStudents.length; i += groupSize) {
+        groups.push(shuffledStudents.slice(i, i + groupSize));
+      }
+
+      const insertGroups = groups.map((group, index) => {
+        return new Promise((resolve, reject) => {
+          const groupName = `Nhóm ${index + 1}`;
+          db.query("INSERT INTO student_groups (name, session_id) VALUES (?, ?)", [groupName, session_id], (err, result) => {
+            if (err) {
+              return reject(err);
+            }
+            const groupId = result.insertId;
+            const values = group.map(student => [groupId, student.mssv]);
+            db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err) => {
+              if (err) {
+                return reject(err);
+              }
+              resolve();
+            });
+          });
+        });
+      });
+
+      Promise.all(insertGroups)
+        .then(() => res.json({ success: true, message: "Chia nhóm thành công" }))
+        .catch(error => {
+          console.error("Lỗi khi chia nhóm:", error);
+          res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+        });
     });
-  });
+
+  } else {
+    // Nếu tự chọn (student) hoặc giáo viên chọn (teacher)
+    const groupName = `Nhóm ${Date.now()}`;
+    db.query("INSERT INTO student_groups (name, session_id) VALUES (?, ?)", [groupName, session_id], (err, result) => {
+      if (err) {
+        console.error("Lỗi khi tạo nhóm:", err);
+        return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+      }
+      const groupId = result.insertId;
+
+      if (students && students.length > 0) {
+        const values = students.map(mssv => [groupId, mssv]);
+        db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err) => {
+          if (err) {
+            console.error("Lỗi khi thêm thành viên:", err);
+          }
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Tạo nhóm thành công",
+        groupId
+      });
+    });
+  }
 });
+
 
 // API thông báo
 app.get("/get-notifications", (req, res) => {
@@ -994,6 +1049,82 @@ app.get("/get-student-by-email", (req, res) => {
     res.json({ success: true, student: results[0] });
   });
 });
+
+// Cập nhật thành viên nhóm
+app.put("/group-management", (req, res) => {
+  const { id, students } = req.body;
+
+  if (!id || !Array.isArray(students)) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu thông tin hoặc danh sách sinh viên không hợp lệ"
+    });
+  }
+
+  // Xóa tất cả thành viên cũ
+  db.query("DELETE FROM group_members WHERE group_id = ?", [id], (err) => {
+    if (err) {
+      console.error("Lỗi khi xóa thành viên nhóm:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Lỗi máy chủ"
+      });
+    }
+
+    if (students.length > 0) {
+      const values = students.map(mssv => [id, mssv]);
+      db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err) => {
+        if (err) {
+          console.error("Lỗi khi thêm thành viên mới:", err);
+          return res.status(500).json({
+            success: false,
+            message: "Lỗi máy chủ"
+          });
+        }
+
+        res.json({
+          success: true,
+          message: "Cập nhật nhóm thành công"
+        });
+      });
+    } else {
+      res.json({
+        success: true,
+        message: "Cập nhật nhóm thành công"
+      });
+    }
+  });
+});
+
+
+// Xóa nhóm
+app.get("/delete-group", (req, res) => {
+  const { group_id } = req.query;
+
+  if (!group_id) {
+    return res.status(400).json({
+      success: false,
+      message: "Thiếu group_id"
+    });
+  }
+
+  db.query("DELETE FROM group_members WHERE group_id = ?", [group_id], (err) => {
+    if (err) {
+      console.error("Lỗi khi xóa thành viên nhóm:", err);
+      return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+    }
+
+    db.query("DELETE FROM student_groups WHERE id = ?", [group_id], (err) => {
+      if (err) {
+        console.error("Lỗi khi xóa nhóm:", err);
+        return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+      }
+
+      res.json({ success: true, message: "Xóa nhóm thành công" });
+    });
+  });
+});
+
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
