@@ -88,7 +88,6 @@ const LoginPage = () => {
     };
 
     try {
-      console.log("Sending to backend:", payload);
       const response = await axios.post(url, payload, {
         timeout: 10000,
         headers: {
@@ -99,7 +98,6 @@ const LoginPage = () => {
       });
 
       const data = response.data;
-      console.log("Response from backend:", data);
 
       if (data.success) {
         localStorage.setItem("user", JSON.stringify(data.user));
@@ -130,6 +128,22 @@ const LoginPage = () => {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
+    setErrors({});
+    setFormData({
+      email: "",
+      password: "",
+      confirmPassword: "",
+      mssv: "",
+      hoten: "",
+      khoa: "",
+      lop: "",
+      ngaysinh: "",
+    });
+  };
+
+  const toggleRole = (role) => {
+    setIsAdmin(role === "admin");
+    setIsLogin(true);
     setErrors({});
     setFormData({
       email: "",
