@@ -94,7 +94,7 @@ const LoginPage = () => {
     try {
       console.log("Sending to backend:", payload);
       const response = await axios.post(url, payload, {
-        timeout: 10000, // 10 giây timeout
+        timeout: 10000,
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
@@ -108,13 +108,7 @@ const LoginPage = () => {
       if (data.success) {
         if (isAdmin || isLogin) {
           localStorage.setItem("user", JSON.stringify(data.user));
-          if (data.user.role === "student") {
-            navigate("/student/dashboard");
-          } else if (data.user.role === "admin") {
-            navigate("/admin/dashboard");
-          } else {
-            alert("Vai trò không hợp lệ!");
-          }
+          window.location.href = '/home'; // ✅ Mặc định luôn chuyển đến /home
         } else {
           alert("Tạo tài khoản thành công!");
           setIsLogin(true);
@@ -169,52 +163,6 @@ const LoginPage = () => {
     });
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/login`,
-        { email: formData.email, password: formData.password, role: isAdmin ? "admin" : "student" },
-        {
-          withCredentials: true, // Giữ nguyên để xử lý cookies/session
-          headers: {
-            "Content-Type": "application/json",
-          }
-        }
-      );
-
-      console.log('Response from backend:', response.data);
-
-      if (response.data.success) {
-        // Lưu thông tin user vào localStorage
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-
-        // Chuyển hướng dựa trên role
-        if (response.data.user.role === 'admin') {
-          window.location.href = '/home';  // Sử dụng window.location.href thay vì navigate
-        } else {
-          window.location.href = '/student-home';
-        }
-      } else {
-        setError(response.data.message || "Đăng nhập thất bại");
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      if (error.response) {
-        setError(error.response.data.message || "Đăng nhập thất bại");
-      } else if (error.request) {
-        setError("Không thể kết nối đến máy chủ");
-      } else {
-        setError("Có lỗi xảy ra khi đăng nhập");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="login-container">
       <div className="shape-top-left"></div>
@@ -247,6 +195,7 @@ const LoginPage = () => {
             />
             {errors.password && <p className="error-text">{errors.password}</p>}
           </div>
+
           {!isAdmin && !isLogin && (
             <>
               <div className="input-group">
@@ -320,6 +269,7 @@ const LoginPage = () => {
               </div>
             </>
           )}
+
           {isAdmin && (
             <div className="toggle-text">
               <a href="#" className="toggle-link">
@@ -331,6 +281,7 @@ const LoginPage = () => {
             {loading ? 'Đang đăng nhập...' : isAdmin ? "Login" : isLogin ? "Sign In" : "Create Account"}
           </button>
         </form>
+
         {!isAdmin && (
           <div className="toggle-text">
             <p>
