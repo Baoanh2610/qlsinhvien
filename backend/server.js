@@ -29,7 +29,6 @@ app.use((req, res, next) => {
 
   // Pre-flight request
   if (req.method === 'OPTIONS') {
-    console.log('Received OPTIONS request:', req.headers);
     return res.status(200).end();
   }
   next();
@@ -119,15 +118,6 @@ function connectWithRetry(retryCount = 0) {
 }
 
 const db = connectWithRetry();
-
-// Xử lý lỗi 404 cho tất cả các route không tồn tại
-app.use((req, res) => {
-  console.log(`Route không tồn tại: ${req.method} ${req.url}`);
-  res.status(404).json({
-    success: false,
-    message: `Không tìm thấy endpoint: ${req.method} ${req.url}`
-  });
-});
 
 // API đăng ký người dùng
 app.post("/register", async (req, res) => {
@@ -276,7 +266,7 @@ app.post("/add-student", (req, res) => {
   });
 });
 
-// API đăng nhập
+// API đăng nhập - đã cải tiến
 app.post("/login", (req, res) => {
   console.log('Received POST /login request:', req.body);
   const { email, password, role } = req.body;
@@ -308,6 +298,7 @@ app.post("/login", (req, res) => {
     const user = results[0];
 
     try {
+      // Xử lý cả 2 định dạng hash có thể có
       let isMatch;
       if (user.password.startsWith('$2y$')) {
         isMatch = await bcrypt.compare(password, user.password.replace('$2y$', '$2a$'));
@@ -316,12 +307,14 @@ app.post("/login", (req, res) => {
       }
 
       if (isMatch) {
+        // Thiết lập session
         req.session.user = {
           id: user.id,
           email: user.email,
           role: user.role
         };
 
+        // Gửi phản hồi thành công
         res.json({
           success: true,
           message: "Đăng nhập thành công",
@@ -401,7 +394,6 @@ app.get("/get-students", (req, res) => {
 // API lấy thông tin sinh viên theo MSSV
 app.get("/get-student/:mssv", (req, res) => {
   const { mssv } = req.params;
-  console.log(`Received GET /get-student/${mssv} request`); // Log để debug
   const sql = "SELECT * FROM students WHERE mssv = ?";
   db.query(sql, [mssv], (err, results) => {
     if (err) {
@@ -412,10 +404,9 @@ app.get("/get-student/:mssv", (req, res) => {
       });
     }
     if (results.length === 0) {
-      console.log(`Không tìm thấy sinh viên với MSSV: ${mssv}`);
       return res.status(404).json({
         success: false,
-        message: `Không tìm thấy sinh viên với MSSV ${mssv}`
+        message: "Không tìm thấy sinh viên"
       });
     }
     res.json({
@@ -449,7 +440,7 @@ app.put("/edit-student", (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({
         success: false,
-        message: `Không tìm thấy sinh viên với MSSV ${mssv}`
+        message: "Không tìm thấy sinh viên"
       });
     }
 
@@ -474,7 +465,7 @@ app.post("/delete-student", (req, res) => {
       return res.status(500).json({ error: "Lỗi khi xóa sinh viên" });
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: `Không tìm thấy sinh viên với MSSV ${mssv}` });
+      return res.status(404).json({ error: "Không tìm thấy sinh viên" });
     }
     res.json({ message: "Xóa sinh viên thành công" });
   });
