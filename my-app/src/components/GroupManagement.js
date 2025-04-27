@@ -22,7 +22,9 @@ const GroupManagement = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`);  { cache: "no-store" }
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
+                cache: "no-store",
+            });
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
             if (data.success && data.data) {
@@ -35,6 +37,7 @@ const GroupManagement = () => {
             toast.error('Không thể tải danh sách ca học');
         }
     }, []);
+    
 
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
         try {
