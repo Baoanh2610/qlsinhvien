@@ -968,6 +968,33 @@ app.get("/session-students/:id", (req, res) => {
   });
 });
 
+// API lấy thông tin sinh viên theo email
+app.get("/get-student-by-email", (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Thiếu email" });
+  }
+
+  const sql = `
+    SELECT s.*
+    FROM students s
+    JOIN users u ON s.mssv = u.email
+    WHERE u.email = ?
+  `;
+
+  db.query(sql, [email], (err, results) => {
+    if (err) {
+      console.error("Lỗi lấy thông tin sinh viên theo email:", err);
+      return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: "Không tìm thấy sinh viên" });
+    }
+    res.json({ success: true, student: results[0] });
+  });
+});
+
 // Khởi động server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
