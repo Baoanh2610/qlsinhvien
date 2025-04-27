@@ -1,7 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
@@ -11,22 +10,43 @@ const app = express();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: ['https://qlsinhvien-ecru.vercel.app/', 'http://localhost:3000'],
+  origin: ['https://qlsinhvien-ecru.vercel.app', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
-  exposedHeaders: ['Content-Length', 'X-Kuma-Revision'],
   maxAge: 600
 }));
 
-app.options('*', cors());
+// Xử lý yêu cầu preflight OPTIONS
+app.options('*', (req, res) => {
+  console.log('Received OPTIONS request:', req.headers); // Log để debug
+  res.set({
+    'Access-Control-Allow-Origin': 'https://qlsinhvien-ecru.vercel.app',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, X-Requested-With',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Max-Age': '600'
+  });
+  res.status(200).send();
+});
 
-app.use(bodyParser.json());
+// Middleware
+app.use(express.json()); // Thay bodyParser.json()
+app.use(cookieParser());
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: true,
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000 // 1 ngày
+  }
+}));
 
 // Middleware để chuyển đổi tên trường
 app.use((req, res, next) => {
   if (req.body) {
-    // Chuyển đổi hoTen thành hoten và ngaySinh thành ngaysinh
     if (req.body.hoTen) {
       req.body.hoten = req.body.hoTen;
       delete req.body.hoTen;
@@ -38,19 +58,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-app.use(cookieParser());
-
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    secure: true,
-    sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000 // 1 ngày
-  }
-}));
 
 // Cấu hình kết nối MySQL
 const dbConfig = {
@@ -233,6 +240,7 @@ app.post("/add-student", (req, res) => {
 
 // API đăng nhập
 app.post("/login", (req, res) => {
+  console.log('Received POST /login request:', req.body); // Log để debug
   const { email, password, role } = req.body;
 
   if (!email || !password || !role) {
@@ -452,7 +460,6 @@ app.get("/class-sessions", (req, res) => {
       });
     }
 
-    // Chuyển đổi kết quả thành mảng
     const sessionsArray = results.map(session => ({
       ...session,
       date: new Date(session.date).toISOString().split('T')[0],
@@ -462,7 +469,7 @@ app.get("/class-sessions", (req, res) => {
     console.log("Danh sách ca học:", sessionsArray);
     res.json({
       success: true,
-      sessions: sessionsArray  // Đảm bảo luôn trả về mảng
+      sessions: sessionsArray
     });
   });
 });
@@ -806,9 +813,8 @@ app.delete('/remove-student-from-session', async (req, res) => {
   }
 
   try {
-    // Xóa sinh viên khỏi bảng class_session_student
     await db.query(
-      'DELETE FROM class_session_student WHERE session_id = ? AND mssv = ?',
+      'DELETE FROM class_session_students WHERE session_id = ? AND mssv = ?',
       [session_id, mssv]
     );
 
@@ -829,7 +835,7 @@ app.get("/session-students/:id", (req, res) => {
   const query = `
     SELECT s.* 
     FROM students s
-    JOIN session_students ss ON s.mssv = ss.mssv
+    JOIN class_session_students ss ON s.mssv = ss.mssv
     WHERE ss.session_id = ?
   `;
 
