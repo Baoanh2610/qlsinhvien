@@ -70,11 +70,7 @@ const LoginPage = () => {
     if (!validateForm()) return;
 
     const baseUrl = process.env.REACT_APP_API_URL;
-    const url = isAdmin
-      ? `${baseUrl}/login`
-      : isLogin
-        ? `${baseUrl}/login`
-        : `${baseUrl}/register`;
+    const url = isAdmin || isLogin ? `${baseUrl}/login` : `${baseUrl}/register`;
 
     const payload = {
       email: formData.email,
@@ -83,12 +79,12 @@ const LoginPage = () => {
       ...(isAdmin || isLogin
         ? {}
         : {
-          mssv: formData.mssv,
-          hoten: formData.hoten,
-          khoa: formData.khoa,
-          lop: formData.lop,
-          ngaysinh: formData.ngaysinh,
-        }),
+            mssv: formData.mssv,
+            hoten: formData.hoten,
+            khoa: formData.khoa,
+            lop: formData.lop,
+            ngaysinh: formData.ngaysinh,
+          }),
     };
 
     try {
@@ -97,7 +93,7 @@ const LoginPage = () => {
         timeout: 10000,
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json",
         },
         credentials: "include",
       });
@@ -106,15 +102,15 @@ const LoginPage = () => {
       console.log("Response from backend:", data);
 
       if (data.success) {
-        if (isAdmin || isLogin) {
-          localStorage.setItem("user", JSON.stringify(data.user));
-          window.location.href = '/home'; // ✅ Mặc định luôn chuyển đến /home
+        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.user.role === "admin") {
+          window.location.href = "/home";
+        } else if (data.user.role === "student") {
+          window.location.href = "/student-home";
         } else {
-          alert("Tạo tài khoản thành công!");
-          setIsLogin(true);
+          alert("Vai trò không hợp lệ!");
         }
       } else {
-        console.error("Login error:", data.message);
         alert(data.message || "Đăng nhập thất bại");
         setErrors({ general: data.message });
       }
@@ -134,22 +130,6 @@ const LoginPage = () => {
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
-    setErrors({});
-    setFormData({
-      email: "",
-      password: "",
-      confirmPassword: "",
-      mssv: "",
-      hoten: "",
-      khoa: "",
-      lop: "",
-      ngaysinh: "",
-    });
-  };
-
-  const toggleRole = (role) => {
-    setIsAdmin(role === "admin");
-    setIsLogin(true);
     setErrors({});
     setFormData({
       email: "",
