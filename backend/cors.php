@@ -1,5 +1,5 @@
 <?php
-header('Access-Control-Allow-Origin: https://home-react-baoanh.vercel.app');
+header('Access-Control-Allow-Origin: https://qlsinhvien-ecru.vercel.app');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
