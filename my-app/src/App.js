@@ -15,7 +15,7 @@ import Home from "./components/Home";
 import GroupManagement from "./components/GroupManagement";
 import LoginPage from "./components/login";
 import Register from "./components/Register";
-import AddStudent from "./components/Addstudent";
+// import AddStudent from "./components/Addstudent";
 import Attendance from "./components/attendance";
 import EditStudent from "./components/EditStudent";
 import StudentHome from "./components/StudentHome";
@@ -94,14 +94,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/add-student"
-            element={
-              <ProtectedRoute allowedRole="admin">
-                <AddStudent />
-              </ProtectedRoute>
-            }
-          />
+          
           <Route
             path="/attendance"
             element={
