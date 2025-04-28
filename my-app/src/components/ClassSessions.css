@@ -4,7 +4,8 @@
     margin: 0 auto;
 }
 
-.class-sessions-container h2 {
+.class-sessions-container h2,
+.class-sessions-container h3 {
     text-align: center;
     color: #2c3e50;
     margin-bottom: 30px;
@@ -51,6 +52,17 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
+}
+
+.form-group input.input-error,
+.form-group select.input-error {
+    border-color: #ef4444;
+}
+
+.error-text {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
 .student-selection {
