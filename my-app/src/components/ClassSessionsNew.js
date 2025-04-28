@@ -6,6 +6,7 @@ import axios from 'axios';
 const ClassSessionsNew = () => {
     const [sessions, setSessions] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [showForm, setShowForm] = useState(false);
     const [formData, setFormData] = useState({
         date: '',
         time_slot: '',
@@ -90,6 +91,7 @@ const ClassSessionsNew = () => {
             if (response.data.success) {
                 toast.success(response.data.message);
                 setFormData({ date: '', time_slot: '', room: '' }); // Reset form
+                setShowForm(false); // Ẩn form
                 await fetchSessions(); // Làm mới danh sách
             } else {
                 toast.error(response.data.message || 'Không thể thêm ca học');
@@ -102,57 +104,70 @@ const ClassSessionsNew = () => {
         }
     };
 
+    const toggleForm = () => {
+        setShowForm(!showForm);
+        setFormErrors({});
+        setFormData({ date: '', time_slot: '', room: '' });
+    };
+
     return (
         <div className="class-sessions-container">
             <h2>Quản Lý Ca Học</h2>
 
+            {/* Nút Thêm ca học */}
+            <button className="add-session-btn" onClick={toggleForm}>
+                {showForm ? 'Hủy' : 'Thêm ca học'}
+            </button>
+
             {/* Form thêm ca học */}
-            <div className="add-session-form">
-                <h3>Thêm Ca Học Mới</h3>
-                <form onSubmit={handleAddSession}>
-                    <div className="form-group">
-                        <label>Ngày:</label>
-                        <input
-                            type="date"
-                            name="date"
-                            value={formData.date}
-                            onChange={handleInputChange}
-                            className={formErrors.date ? 'input-error' : ''}
-                        />
-                        {formErrors.date && <p className="error-text">{formErrors.date}</p>}
-                    </div>
-                    <div className="form-group">
-                        <label>Ca học:</label>
-                        <select
-                            name="time_slot"
-                            value={formData.time_slot}
-                            onChange={handleInputChange}
-                            className={formErrors.time_slot ? 'input-error' : ''}
-                        >
-                            <option value="">Chọn ca học</option>
-                            {timeSlotOptions.map((slot, index) => (
-                                <option key={index} value={slot}>{slot}</option>
-                            ))}
-                        </select>
-                        {formErrors.time_slot && <p className="error-text">{formErrors.time_slot}</p>}
-                    </div>
-                    <div className="form-group">
-                        <label>Phòng học:</label>
-                        <input
-                            type="text"
-                            name="room"
-                            value={formData.room}
-                            onChange={handleInputChange}
-                            placeholder="VD: C606"
-                            className={formErrors.room ? 'input-error' : ''}
-                        />
-                        {formErrors.room && <p className="error-text">{formErrors.room}</p>}
-                    </div>
-                    <button type="submit" className="submit-btn" disabled={loading}>
-                        {loading ? 'Đang thêm...' : 'Thêm ca học'}
-                    </button>
-                </form>
-            </div>
+            {showForm && (
+                <div className="add-session-form">
+                    <h3>Thêm Ca Học Mới</h3>
+                    <form onSubmit={handleAddSession}>
+                        <div className="form-group">
+                            <label>Ngày:</label>
+                            <input
+                                type="date"
+                                name="date"
+                                value={formData.date}
+                                onChange={handleInputChange}
+                                className={formErrors.date ? 'input-error' : ''}
+                            />
+                            {formErrors.date && <p className="error-text">{formErrors.date}</p>}
+                        </div>
+                        <div className="form-group">
+                            <label>Ca học:</label>
+                            <select
+                                name="time_slot"
+                                value={formData.time_slot}
+                                onChange={handleInputChange}
+                                className={formErrors.time_slot ? 'input-error' : ''}
+                            >
+                                <option value="">Chọn ca học</option>
+                                {timeSlotOptions.map((slot, index) => (
+                                    <option key={index} value={slot}>{slot}</option>
+                                ))}
+                            </select>
+                            {formErrors.time_slot && <p className="error-text">{formErrors.time_slot}</p>}
+                        </div>
+                        <div className="form-group">
+                            <label>Phòng học:</label>
+                            <input
+                                type="text"
+                                name="room"
+                                value={formData.room}
+                                onChange={handleInputChange}
+                                placeholder="VD: C606"
+                                className={formErrors.room ? 'input-error' : ''}
+                            />
+                            {formErrors.room && <p className="error-text">{formErrors.room}</p>}
+                        </div>
+                        <button type="submit" className="submit-btn" disabled={loading}>
+                            {loading ? 'Đang thêm...' : 'Thêm ca học'}
+                        </button>
+                    </form>
+                </div>
+            )}
 
             {/* Danh sách ca học */}
             <h3>Danh Sách Ca Học</h3>
