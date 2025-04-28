@@ -24,11 +24,12 @@ const GroupManagement = () => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
                 cache: "no-store",
+                credentials: "include", // <- Thêm credentials vào
             });
             if (!response.ok) throw new Error('Network response was not ok');
             const data = await response.json();
-            if (data.success && data.data) {
-                setSessions(data.data);
+            if (data.success && data.sessions) {  // <- Đúng field sessions
+                setSessions(data.sessions);
             } else {
                 toast.error('Dữ liệu không đúng định dạng');
             }
@@ -37,6 +38,7 @@ const GroupManagement = () => {
             toast.error('Không thể tải danh sách ca học');
         }
     }, []);
+    
     
 
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
