@@ -828,6 +828,7 @@ app.get("/get-groups", (req, res) => {
 
 
 app.post("/create-group", (req, res) => {
+  console.log('Received body for create-group:', req.body); // <-- Thêm dòng này
   const { session_id, mode, min_members, max_members, students } = req.body;
 
   if (!session_id || !mode) {

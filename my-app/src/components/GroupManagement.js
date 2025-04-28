@@ -204,10 +204,12 @@ const GroupManagement = () => {
     const handleCreateGroup = useCallback(
         async (e) => {
             e.preventDefault();
+    
             if (!groupSettings.sessionId) {
                 toast.error('Vui lòng chọn ca học');
                 return;
             }
+    
             if (
                 (groupSettings.groupMode === 'teacher' || groupSettings.groupMode === 'student') &&
                 selectedStudents.length === 0
@@ -223,6 +225,7 @@ const GroupManagement = () => {
                 max_members: groupSettings.maxMembers,
             };
     
+            // Nếu không phải random thì cần gửi danh sách sinh viên
             if (groupSettings.groupMode !== 'random') {
                 payload.students = selectedStudents;
             }
@@ -236,16 +239,22 @@ const GroupManagement = () => {
                         headers: {
                             'Content-Type': 'application/json',
                         },
+                        credentials: 'include', // ⚡️ THÊM credentials để gửi cookies
                         body: JSON.stringify(payload),
-                        cache: 'no-store', // 👉 thêm dòng này để luôn lấy dữ liệu mới
                     }
                 );
+    
                 const data = await response.json();
+    
                 if (data.success) {
                     toast.success('Tạo nhóm thành công');
+                    // Reset lại form
                     setGroupSettings((prev) => ({
                         ...prev,
-                        sessionId: selectedSession,
+                        sessionId: "", // ⚡ Reset lại sessionId
+                        groupMode: "random",
+                        minMembers: 2,
+                        maxMembers: 5,
                     }));
                     setSelectedStudents([]);
                     await fetchGroups(selectedSession);
@@ -261,6 +270,7 @@ const GroupManagement = () => {
         },
         [groupSettings, selectedStudents, selectedSession, fetchGroups, fetchStudents]
     );
+    
     
 
     const handleUpdateGroup = useCallback(
