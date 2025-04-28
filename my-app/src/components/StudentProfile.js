@@ -1,7 +1,7 @@
 // StudentProfile.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Thêm axios để gọi API
+import axios from "axios";
 import "./StudentProfile.css";
 
 function StudentProfile() {
@@ -15,9 +15,10 @@ function StudentProfile() {
         if (!storedUser || storedUser.role !== "student") {
             navigate("/login");
         } else {
-            // Gọi API để lấy thông tin sinh viên mới nhất
+            // Gọi API để lấy thông tin sinh viên dựa trên email
             axios
-                .get(`http://localhost:5000/get-student/${storedUser.mssv}`, {
+                .get(`${process.env.REACT_APP_API_URL}/get-student-by-email`, {
+                    params: { email: storedUser.email },
                     withCredentials: true, // Gửi cookie/session để xác thực
                 })
                 .then((response) => {
@@ -49,14 +50,26 @@ function StudentProfile() {
         <div className="student-profile">
             <h2>Thông tin cá nhân</h2>
             <div className="profile-info">
-                <p><strong>Email:</strong> {userInfo.email || "Chưa có"}</p>
-                <p><strong>MSSV:</strong> {userInfo.mssv || "Chưa có"}</p>
-                <p><strong>Họ Tên:</strong> {userInfo.hoten || "Chưa có"}</p>
-                <p><strong>Khoa:</strong> {userInfo.khoa || "Chưa có"}</p>
-                <p><strong>Lớp:</strong> {userInfo.lop || "Chưa có"}</p>
-                <p><strong>Ngày Sinh:</strong> {userInfo.ngaysinh || "Chưa có"}</p>
+                <p>
+                    <strong>Email:</strong> {userInfo.email || "Chưa có"}
+                </p>
+                <p>
+                    <strong>MSSV:</strong> {userInfo.mssv || "Chưa có"}
+                </p>
+                <p>
+                    <strong>Họ Tên:</strong> {userInfo.hoten || "Chưa có"}
+                </p>
+                <p>
+                    <strong>Khoa:</strong> {userInfo.khoa || "Chưa có"}
+                </p>
+                <p>
+                    <strong>Lớp:</strong> {userInfo.lop || "Chưa có"}
+                </p>
+                <p>
+                    <strong>Ngày Sinh:</strong> {userInfo.ngaysinh || "Chưa có"}
+                </p>
             </div>
-            <button onClick={() => navigate("/student/home")}>Quay lại</button>
+            <button onClick={() => navigate("/student-home")}>Quay lại</button>
         </div>
     );
 }

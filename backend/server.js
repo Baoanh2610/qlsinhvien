@@ -1160,7 +1160,7 @@ app.get("/session-students/:id", (req, res) => {
   });
 });
 
-// API lấy thông tin sinh viên theo email
+// API lấy thông tin sinh viên dựa trên email
 app.get("/get-student-by-email", (req, res) => {
   const { email } = req.query;
 
@@ -1168,8 +1168,8 @@ app.get("/get-student-by-email", (req, res) => {
     return res.status(400).json({ success: false, message: "Thiếu email" });
   }
 
-  // Lấy mssv từ bảng users dựa trên email
-  const userSql = "SELECT mssv FROM users WHERE email = ?";
+  // Lấy thông tin người dùng và mssv từ bảng users dựa trên email
+  const userSql = "SELECT id, mssv FROM users WHERE email = ?";
   db.query(userSql, [email], (err, userResults) => {
     if (err) {
       console.error("Lỗi khi lấy thông tin người dùng:", err);
@@ -1187,11 +1187,12 @@ app.get("/get-student-by-email", (req, res) => {
       });
     }
 
+    const userId = userResults[0].id;
     const mssv = userResults[0].mssv;
 
-    // Lấy thông tin sinh viên từ bảng students dựa trên mssv
-    const studentSql = "SELECT * FROM students WHERE mssv = ?";
-    db.query(studentSql, [mssv], (err, studentResults) => {
+    // Lấy thông tin sinh viên từ bảng students dựa trên user_id
+    const studentSql = "SELECT * FROM students WHERE user_id = ?";
+    db.query(studentSql, [userId], (err, studentResults) => {
       if (err) {
         console.error("Lỗi khi lấy thông tin sinh viên:", err);
         return res.status(500).json({
@@ -1208,9 +1209,15 @@ app.get("/get-student-by-email", (req, res) => {
         });
       }
 
+      // Kết hợp thông tin từ users và students
+      const studentInfo = {
+        ...studentResults[0],
+        email: email, // Thêm email từ bảng users
+      };
+
       res.json({
         success: true,
-        student: studentResults[0],
+        student: studentInfo,
       });
     });
   });
