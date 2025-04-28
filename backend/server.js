@@ -785,38 +785,47 @@ app.get("/get-groups", (req, res) => {
   const sql = `
     SELECT 
       g.*, 
-      COUNT(gm.mssv) as member_count,
-      GROUP_CONCAT(s.hoten) as member_names,
-      GROUP_CONCAT(s.mssv) as member_mssvs
+      gm.mssv,
+      s.hoten
     FROM student_groups g 
     LEFT JOIN group_members gm ON g.id = gm.group_id
     LEFT JOIN students s ON gm.mssv = s.mssv
     WHERE g.session_id = ?
-    GROUP BY g.id
-    ORDER BY g.name ASC
+    ORDER BY g.name ASC, s.hoten ASC
   `;
 
   db.query(sql, [session_id], (err, results) => {
     if (err) {
       console.error("Lỗi khi lấy danh sách nhóm:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Lỗi máy chủ"
-      });
+      return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
     }
 
-    const formattedResults = results.map(group => ({
-      ...group,
-      member_names: group.member_names ? group.member_names.split(',') : [],
-      member_mssvs: group.member_mssvs ? group.member_mssvs.split(',') : []
-    }));
+    const groups = {};
+    results.forEach(row => {
+      if (!groups[row.id]) {
+        groups[row.id] = {
+          id: row.id,
+          name: row.name,
+          mode: row.mode,
+          session_id: row.session_id,
+          members: [],
+        };
+      }
+      if (row.mssv) {
+        groups[row.id].members.push({
+          mssv: row.mssv,
+          hoten: row.hoten
+        });
+      }
+    });
 
     res.json({
       success: true,
-      groups: formattedResults
+      groups: Object.values(groups)
     });
   });
 });
+
 
 app.post("/create-group", (req, res) => {
   const { session_id, mode, min_members, max_members, students } = req.body;
