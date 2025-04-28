@@ -112,13 +112,13 @@ const LoginPage = () => {
           return;
         }
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("Stored user in localStorage:", data.user);
+        console.debug("Stored user in localStorage:", data.user);
         if (data.user.role === "admin") {
-          console.log("Navigating to /home");
+          console.debug("Navigating to /home");
           navigate("/home");
         } else if (data.user.role === "student") {
-          console.log("Navigating to /student/home"); // Sửa đường dẫn
-          navigate("/student/home");
+          console.debug("Navigating to /student-home");
+          navigate("/student-home");
         } else {
           console.error("Invalid role:", data.user.role);
           alert("Vai trò không hợp lệ!");

@@ -1,4 +1,4 @@
-// src/App.js
+
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -15,7 +15,6 @@ import Home from "./components/Home";
 import GroupManagement from "./components/GroupManagement";
 import LoginPage from "./components/login";
 import Register from "./components/Register";
-// import AddStudent from "./components/Addstudent";
 import Attendance from "./components/attendance";
 import EditStudent from "./components/EditStudent";
 import StudentHome from "./components/StudentHome";
@@ -131,7 +130,7 @@ function AppContent() {
 
           {/* Protected Routes cho student */}
           <Route
-            path="/student/home"
+            path="/student-home"
             element={
               <ProtectedRoute allowedRole="student">
                 <StudentHome />
@@ -263,7 +262,7 @@ function Sidebar() {
         <nav>
           <ul>
             <li>
-              <Link to="/student/home">
+              <Link to="/student-home">
                 <i className="fas fa-home"></i>
                 <span>Trang Chủ</span>
               </Link>
@@ -306,4 +305,5 @@ function Sidebar() {
 
   return null;
 }
+
 export default App;
