@@ -522,24 +522,32 @@ app.get("/get-students", (req, res) => {
 // API lấy thông tin sinh viên theo MSSV
 app.get("/get-student/:mssv", (req, res) => {
   const { mssv } = req.params;
-  const sql = "SELECT * FROM students WHERE mssv = ?";
+
+  // Truy vấn kết hợp bảng users và students
+  const sql = `
+    SELECT u.email, s.mssv, s.hoten, s.khoa, s.lop, s.ngaysinh 
+    FROM users u
+    LEFT JOIN students s ON u.mssv = s.mssv
+    WHERE u.mssv = ?
+  `;
   db.query(sql, [mssv], (err, results) => {
     if (err) {
       console.error("Lỗi khi lấy thông tin sinh viên:", err);
       return res.status(500).json({
         success: false,
-        message: "Lỗi máy chủ"
+        message: "Lỗi máy chủ",
+        error: err.message,
       });
     }
     if (results.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Không tìm thấy sinh viên"
+        message: "Không tìm thấy sinh viên",
       });
     }
     res.json({
       success: true,
-      student: results[0]
+      student: results[0], // Trả về đối tượng chứa email, mssv, hoten, khoa, lop, ngaysinh
     });
   });
 });
