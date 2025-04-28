@@ -27,10 +27,14 @@ function StudentHome() {
       if (response.data.success) {
         setStudentInfo(response.data.student);
       } else {
-        console.error("Không tìm thấy thông tin sinh viên.");
+        console.error("Không tìm thấy thông tin sinh viên:", response.data.message);
+        alert("Không tìm thấy thông tin sinh viên. Vui lòng liên hệ quản trị viên.");
+        navigate("/login"); // Chuyển hướng về login nếu không tìm thấy
       }
     } catch (error) {
       console.error("Lỗi lấy thông tin sinh viên:", error);
+      alert("Lỗi khi tải thông tin sinh viên. Vui lòng thử lại sau.");
+      navigate("/login");
     }
   };
 

@@ -67,7 +67,10 @@ const LoginPage = () => {
     setErrors({});
     setLoading(true);
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setLoading(false);
+      return;
+    }
 
     const baseUrl = process.env.REACT_APP_API_URL;
     const url = isAdmin || isLogin ? `${baseUrl}/login` : `${baseUrl}/register`;
@@ -79,43 +82,46 @@ const LoginPage = () => {
       ...(isAdmin || isLogin
         ? {}
         : {
-            mssv: formData.mssv,
-            hoten: formData.hoten,
-            khoa: formData.khoa,
-            lop: formData.lop,
-            ngaysinh: formData.ngaysinh,
-          }),
+          mssv: formData.mssv,
+          hoten: formData.hoten,
+          khoa: formData.khoa,
+          lop: formData.lop,
+          ngaysinh: formData.ngaysinh,
+        }),
     };
 
     try {
+      console.log("Sending request to:", url, payload); // Thêm log để debug
       const response = await axios.post(url, payload, {
         timeout: 10000,
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        credentials: "include",
+        withCredentials: true, // Sửa credentials thành withCredentials
       });
 
       const data = response.data;
+      console.log("Response data:", data); // Thêm log để kiểm tra phản hồi
 
       if (data.success) {
         localStorage.setItem("user", JSON.stringify(data.user));
         if (data.user.role === "admin") {
-          window.location.href = "/home";
+          window.location.href = "/home"; // Chuyển hướng đến Home.js
         } else if (data.user.role === "student") {
-          window.location.href = "/student-home";
+          window.location.href = "/student-home"; // Chuyển hướng đến StudentHome.js
         } else {
           alert("Vai trò không hợp lệ!");
         }
       } else {
-        alert(data.message || "Đăng nhập thất bại");
+        alert(data.message || "Đăng nhập/đăng ký thất bại");
         setErrors({ general: data.message });
       }
     } catch (error) {
       console.error("Error:", error);
       if (error.response) {
-        setErrors({ general: error.response.data.message || "Đăng nhập thất bại" });
+        setErrors({ general: error.response.data.message || "Đăng nhập/đăng ký thất bại" });
+        alert(error.response.data.message || "Đăng nhập/đăng ký thất bại");
       } else if (error.request) {
         alert("Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet hoặc thử lại sau.");
       } else {
