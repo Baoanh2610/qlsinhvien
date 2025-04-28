@@ -22,22 +22,21 @@ const GroupManagement = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
-                cache: "no-store",
-                credentials: "include", // <- Thêm credentials vào
-            });
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            if (data.success && data.sessions) {  // <- Đúng field sessions
-                setSessions(data.sessions);
-            } else {
-                toast.error('Dữ liệu không đúng định dạng');
-            }
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
+            credentials: "include",
+          });
+          if (!response.ok) throw new Error("Network response was not ok");
+          const data = await response.json();
+          if (data.success && data.sessions) {
+            setSessions(data.sessions);
+          } else {
+            toast.error("Dữ liệu ca học không đúng định dạng");
+          }
         } catch (error) {
-            console.error('Error fetching sessions:', error);
-            toast.error('Không thể tải danh sách ca học');
+          console.error("Error fetching sessions:", error);
+          toast.error("Không thể tải danh sách ca học");
         }
-    }, []);
+      }, []);
     
     
 
@@ -88,24 +87,21 @@ const GroupManagement = () => {
         [filterStudentsWithoutGroup]
     );
 
-    const fetchGroups = useCallback(async (sessionId) => {
+    const fetchGroups = async (session) => {
+        if (!session) return;
         try {
-            const response = await fetch(
-                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`,
-                { cache: "no-store" }
-            );
-            if (!response.ok) throw new Error('Network response was not ok');
-            const data = await response.json();
-            if (data.success && data.groups) {
-                setGroups(data.groups);
-            } else {
-                toast.error(data.message || 'Không thể tải danh sách nhóm');
-            }
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/get-groups?session_id=${session.id}`, {
+            credentials: "include",
+          });
+          const data = await response.json();
+          if (data.success) {
+            setGroups(data.groups);
+          }
         } catch (error) {
-            console.error('Error fetching groups:', error);
-            toast.error('Không thể tải danh sách nhóm');
+          console.error("Không thể tải danh sách nhóm:", error);
         }
-    }, []);
+      };
+    
 
     const handleSendNotification = useCallback(
         async (e) => {
@@ -203,73 +199,72 @@ const GroupManagement = () => {
 
     const handleCreateGroup = useCallback(
         async (e) => {
-            e.preventDefault();
+          e.preventDefault();
     
-            if (!groupSettings.sessionId) {
-                toast.error('Vui lòng chọn ca học');
-                return;
+          if (!groupSettings.sessionId) {
+            toast.error("Vui lòng chọn ca học");
+            return;
+          }
+    
+          if (
+            (groupSettings.groupMode === "teacher" || groupSettings.groupMode === "student") &&
+            selectedStudents.length === 0
+          ) {
+            toast.error("Vui lòng chọn sinh viên cho nhóm");
+            return;
+          }
+    
+          const payload = {
+            session_id: groupSettings.sessionId,
+            mode: groupSettings.groupMode,
+            min_members: parseInt(groupSettings.minMembers),
+            max_members: parseInt(groupSettings.maxMembers),
+          };
+    
+          if (groupSettings.groupMode !== "random") {
+            payload.students = selectedStudents;
+          }
+    
+          console.log("Payload gửi lên:", payload);
+    
+          setLoading(true);
+          try {
+            const response = await fetch(
+              `${process.env.REACT_APP_API_URL}/create-group`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify(payload),
+              }
+            );
+    
+            const data = await response.json();
+            if (data.success) {
+              toast.success("Tạo nhóm thành công");
+              setGroupSettings({
+                sessionId: "",
+                groupMode: "random",
+                minMembers: 2,
+                maxMembers: 5,
+              });
+              setSelectedStudents([]);
+              await fetchGroups(selectedSession);
+              await fetchStudents(selectedSession);
+            } else {
+              toast.error(data.message || "Không thể tạo nhóm");
             }
-    
-            if (
-                (groupSettings.groupMode === 'teacher' || groupSettings.groupMode === 'student') &&
-                selectedStudents.length === 0
-            ) {
-                toast.error('Vui lòng chọn sinh viên cho nhóm');
-                return;
-            }
-    
-            const payload = {
-                session_id: groupSettings.sessionId,
-                mode: groupSettings.groupMode,
-                min_members: groupSettings.minMembers,
-                max_members: groupSettings.maxMembers,
-            };
-    
-            // Nếu không phải random thì cần gửi danh sách sinh viên
-            if (groupSettings.groupMode !== 'random') {
-                payload.students = selectedStudents;
-            }
-    
-            setLoading(true);
-            try {
-                const response = await fetch(
-                    `${process.env.REACT_APP_API_URL}/create-group`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        credentials: 'include', // ⚡️ THÊM credentials để gửi cookies
-                        body: JSON.stringify(payload),
-                    }
-                );
-    
-                const data = await response.json();
-    
-                if (data.success) {
-                    toast.success('Tạo nhóm thành công');
-                    // Reset lại form
-                    setGroupSettings((prev) => ({
-                        ...prev,
-                        sessionId: "", // ⚡ Reset lại sessionId
-                        groupMode: "random",
-                        minMembers: 2,
-                        maxMembers: 5,
-                    }));
-                    setSelectedStudents([]);
-                    await fetchGroups(selectedSession);
-                    await fetchStudents(selectedSession);
-                } else {
-                    toast.error(data.message || 'Không thể tạo nhóm');
-                }
-            } catch (error) {
-                console.error('Error creating group:', error);
-                toast.error('Không thể tạo nhóm. Vui lòng thử lại sau.');
-            }
-            setLoading(false);
+          } catch (error) {
+            console.error("Error creating group:", error);
+            toast.error("Không thể tạo nhóm. Vui lòng thử lại sau.");
+          }
+          setLoading(false);
         },
         [groupSettings, selectedStudents, selectedSession, fetchGroups, fetchStudents]
-    );
+      );
+    
     
     
 
