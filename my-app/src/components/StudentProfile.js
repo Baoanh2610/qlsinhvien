@@ -1,4 +1,3 @@
-// StudentProfile.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -15,11 +14,10 @@ function StudentProfile() {
         if (!storedUser || storedUser.role !== "student") {
             navigate("/login");
         } else {
-            // Gọi API để lấy thông tin sinh viên dựa trên email
             axios
                 .get(`${process.env.REACT_APP_API_URL}/get-student-by-email`, {
                     params: { email: storedUser.email },
-                    withCredentials: true, // Gửi cookie/session để xác thực
+                    withCredentials: true,
                 })
                 .then((response) => {
                     if (response.data.success) {
@@ -69,7 +67,7 @@ function StudentProfile() {
                     <strong>Ngày Sinh:</strong> {userInfo.ngaysinh || "Chưa có"}
                 </p>
             </div>
-            <button onClick={() => navigate("/student-home")}>Quay lại</button>
+            <button onClick={() => navigate("/login")}>Đăng xuất</button>
         </div>
     );
 }

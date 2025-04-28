@@ -142,19 +142,14 @@ app.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Lưu thông tin người dùng vào bảng users, bao gồm mssv nếu là student
-    const userSql = role === "student"
-      ? "INSERT INTO users (email, password, role, mssv) VALUES (?, ?, ?, ?)"
-      : "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
-    const userParams = role === "student" ? [email, hashedPassword, role, mssv] : [email, hashedPassword, role];
-
-    db.query(userSql, userParams, (err, result) => {
+    const userSql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+    db.query(userSql, [email, hashedPassword, role], (err, result) => {
       if (err) {
         console.error("Lỗi khi đăng ký người dùng:", err);
         if (err.code === 'ER_DUP_ENTRY') {
           return res.status(400).json({
             success: false,
-            message: "Email hoặc MSSV đã tồn tại trong hệ thống",
+            message: "Email đã tồn tại trong hệ thống",
           });
         }
         return res.status(500).json({
@@ -166,8 +161,8 @@ app.post("/register", async (req, res) => {
       const userId = result.insertId;
 
       if (role === "student") {
-        const studentSql = "INSERT INTO students (mssv, hoten, khoa, lop, ngaysinh) VALUES (?, ?, ?, ?, ?)";
-        db.query(studentSql, [mssv, hoten, khoa, lop, ngaysinh], (err, result) => {
+        const studentSql = "INSERT INTO students (mssv, hoten, khoa, lop, ngaysinh, user_id) VALUES (?, ?, ?, ?, ?, ?)";
+        db.query(studentSql, [mssv, hoten, khoa, lop, ngaysinh, userId], (err, result) => {
           if (err) {
             console.error("Lỗi khi lưu thông tin sinh viên:", err);
             if (err.code === 'ER_DUP_ENTRY') {
@@ -185,7 +180,7 @@ app.post("/register", async (req, res) => {
           res.json({
             success: true,
             message: "Đăng ký sinh viên thành công!",
-            user: { id: userId, email, role, mssv },
+            user: { id: userId, email, role },
           });
         });
       } else {
@@ -1168,8 +1163,7 @@ app.get("/get-student-by-email", (req, res) => {
     return res.status(400).json({ success: false, message: "Thiếu email" });
   }
 
-  // Lấy thông tin người dùng và mssv từ bảng users dựa trên email
-  const userSql = "SELECT id, mssv FROM users WHERE email = ?";
+  const userSql = "SELECT id FROM users WHERE email = ?";
   db.query(userSql, [email], (err, userResults) => {
     if (err) {
       console.error("Lỗi khi lấy thông tin người dùng:", err);
@@ -1188,9 +1182,6 @@ app.get("/get-student-by-email", (req, res) => {
     }
 
     const userId = userResults[0].id;
-    const mssv = userResults[0].mssv;
-
-    // Lấy thông tin sinh viên từ bảng students dựa trên user_id
     const studentSql = "SELECT * FROM students WHERE user_id = ?";
     db.query(studentSql, [userId], (err, studentResults) => {
       if (err) {
@@ -1209,10 +1200,9 @@ app.get("/get-student-by-email", (req, res) => {
         });
       }
 
-      // Kết hợp thông tin từ users và students
       const studentInfo = {
         ...studentResults[0],
-        email: email, // Thêm email từ bảng users
+        email: email,
       };
 
       res.json({

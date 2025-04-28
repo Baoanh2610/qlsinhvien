@@ -1,4 +1,3 @@
-
 import React from "react";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -17,7 +16,6 @@ import LoginPage from "./components/login";
 import Register from "./components/Register";
 import Attendance from "./components/attendance";
 import EditStudent from "./components/EditStudent";
-import StudentHome from "./components/StudentHome";
 import StudentProfile from "./components/StudentProfile";
 import ClassSessionsNew from "./components/ClassSessionsNew";
 import StudentAttendance from "./components/StudentAttendance";
@@ -78,14 +76,9 @@ function AppContent() {
       {!isLoginPage && <Sidebar />}
       <div className={isLoginPage ? "full-width" : "content-area"}>
         <Routes>
-          {/* Chuyển hướng mặc định đến trang login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-
-          {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
-
-          {/* Protected Routes cho admin */}
           <Route
             path="/home"
             element={
@@ -102,7 +95,6 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/attendance"
             element={
@@ -124,16 +116,6 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRole="admin">
                 <ClassSessionsNew />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Protected Routes cho student */}
-          <Route
-            path="/student-home"
-            element={
-              <ProtectedRoute allowedRole="student">
-                <StudentHome />
               </ProtectedRoute>
             }
           />
@@ -169,8 +151,6 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-
-          {/* Redirect all other routes to login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
@@ -196,12 +176,10 @@ function Sidebar() {
     navigate("/login");
   };
 
-  // Nếu không có user hoặc đang ở trang login, không hiển thị sidebar
   if (!user) {
     return null;
   }
 
-  // Sidebar cho admin
   if (user.role === "admin") {
     return (
       <div className="sidebar">
@@ -252,7 +230,6 @@ function Sidebar() {
     );
   }
 
-  // Sidebar cho student
   if (user.role === "student") {
     return (
       <div className="sidebar">
@@ -261,12 +238,6 @@ function Sidebar() {
         </div>
         <nav>
           <ul>
-            <li>
-              <Link to="/student-home">
-                <i className="fas fa-home"></i>
-                <span>Trang Chủ</span>
-              </Link>
-            </li>
             <li>
               <Link to="/student/profile">
                 <i className="fas fa-user"></i>

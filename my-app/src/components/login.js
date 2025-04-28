@@ -1,4 +1,3 @@
-// Login.js
 import React, { useState } from "react";
 import "./login.css";
 import axios from 'axios';
@@ -19,7 +18,6 @@ const LoginPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -111,7 +109,6 @@ const LoginPage = () => {
           setLoading(false);
           return;
         }
-        // Trong hàm handleSubmit của Login.js, sau khi lưu user vào localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("Login successful, user stored in localStorage:", data.user);
 
@@ -119,8 +116,8 @@ const LoginPage = () => {
           console.log("User is admin, navigating to /home");
           navigate("/home");
         } else if (data.user.role === "student") {
-          console.log("User is student, navigating to /student-home");
-          navigate("/student-home");
+          console.log("User is student, navigating to /student/profile");
+          navigate("/student/profile");
         } else {
           console.error("Invalid role:", data.user.role);
           alert("Vai trò không hợp lệ!");
