@@ -117,8 +117,8 @@ const LoginPage = () => {
           console.log("Navigating to /home");
           navigate("/home");
         } else if (data.user.role === "student") {
-          console.log("Navigating to /student-home");
-          navigate("/student-home");
+          console.log("Navigating to /student/home"); // Sửa đường dẫn
+          navigate("/student/home");
         } else {
           console.error("Invalid role:", data.user.role);
           alert("Vai trò không hợp lệ!");
