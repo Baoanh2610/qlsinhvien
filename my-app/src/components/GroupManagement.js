@@ -111,7 +111,7 @@ const GroupManagement = () => {
             console.error("Không thể tải danh sách nhóm:", error);
             setGroups([]);
         }
-    });
+    }, []);
 
 
     const handleSendNotification = useCallback(
