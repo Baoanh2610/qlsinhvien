@@ -977,15 +977,14 @@ app.post("/create-group", (req, res) => {
         console.error("Lỗi khi lấy danh sách sinh viên:", err);
         return res.status(500).json({ success: false, message: "Lỗi máy chủ", error: err.message });
       }
-
-      console.log('Students result:', studentsResult);
-
+      console.log('Students available for grouping:', studentsResult); // Debug
       if (!studentsResult || studentsResult.length === 0) {
         return res.status(400).json({ success: false, message: "Không có sinh viên để chia nhóm" });
       }
 
       const studentMSSVs = studentsResult.map(row => row.mssv);
       console.log('Student MSSVs:', studentMSSVs);
+
       const shuffledStudents = studentMSSVs.sort(() => 0.5 - Math.random());
       const groupSize = Math.min(Math.max(min_members || 2, 2), max_members || 5);
       const groups = [];
@@ -993,15 +992,19 @@ app.post("/create-group", (req, res) => {
       for (let i = 0; i < shuffledStudents.length; i += groupSize) {
         groups.push(shuffledStudents.slice(i, i + groupSize));
       }
+      console.log('Groups:', groups);
 
       const insertGroups = groups.map((group, index) => {
         return new Promise((resolve, reject) => {
           const groupName = `Nhóm ${index + 1}`;
-          db.query("INSERT INTO student_groups (name, session_id) VALUES (?, ?)", [groupName, session_id], (err, result) => {
-            if (err) return reject(err);
+          db.query("INSERT INTO student_groups (name, session_id, mode) VALUES (?, ?, ?)", [groupName, session_id, mode], (err, result) => {
+            if (err) {
+              console.error('Error inserting group:', err);
+              return reject(err);
+            }
             const groupId = result.insertId;
 
-            const values = group.map(mssv => [groupId, mssv]); // 👉 Sửa đúng chỗ này
+            const values = group.map(mssv => [groupId, mssv]);
             db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err2) => {
               if (err2) return reject(err2);
               resolve();
