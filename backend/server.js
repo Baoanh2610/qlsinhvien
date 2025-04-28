@@ -400,7 +400,7 @@ app.post("/login", (req, res) => {
   if (!email || !password || !role) {
     return res.status(400).json({
       success: false,
-      message: "Vui lòng nhập đầy đủ thông tin"
+      message: "Vui lòng nhập đầy đủ thông tin",
     });
   }
 
@@ -410,21 +410,21 @@ app.post("/login", (req, res) => {
       console.error("Lỗi khi đăng nhập:", err);
       return res.status(500).json({
         success: false,
-        message: "Lỗi máy chủ"
+        message: "Lỗi máy chủ",
       });
     }
 
     if (results.length === 0) {
+      console.log("No user found for email:", email, "role:", role);
       return res.status(401).json({
         success: false,
-        message: "Email hoặc vai trò không đúng"
+        message: "Email hoặc vai trò không đúng",
       });
     }
 
     const user = results[0];
 
     try {
-      // Xử lý cả 2 định dạng hash có thể có
       let isMatch;
       if (user.password.startsWith('$2y$')) {
         isMatch = await bcrypt.compare(password, user.password.replace('$2y$', '$2a$'));
@@ -433,34 +433,33 @@ app.post("/login", (req, res) => {
       }
 
       if (isMatch) {
-        // Thiết lập session
         req.session.user = {
           id: user.id,
           email: user.email,
-          role: user.role
+          role: user.role,
         };
-
-        // Gửi phản hồi thành công
+        console.log("Login successful for user:", user.email, "role:", user.role);
         res.json({
           success: true,
           message: "Đăng nhập thành công",
           user: {
             id: user.id,
             email: user.email,
-            role: user.role
-          }
+            role: user.role,
+          },
         });
       } else {
+        console.log("Incorrect password for email:", email);
         res.status(401).json({
           success: false,
-          message: "Mật khẩu không đúng"
+          message: "Mật khẩu không đúng",
         });
       }
     } catch (error) {
       console.error("Lỗi khi so sánh mật khẩu:", error);
       res.status(500).json({
         success: false,
-        message: "Lỗi máy chủ"
+        message: "Lỗi máy chủ",
       });
     }
   });

@@ -46,7 +46,16 @@ axios.interceptors.response.use(
 
 // Định nghĩa ProtectedRoute
 function ProtectedRoute({ children, allowedRole }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userData = localStorage.getItem("user");
+  let user = null;
+  if (userData) {
+    try {
+      user = JSON.parse(userData);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return <Navigate to="/login" replace />;
+    }
+  }
   if (!user || (allowedRole && user.role !== allowedRole)) {
     return <Navigate to="/login" replace />;
   }
@@ -94,7 +103,7 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/attendance"
             element={
@@ -172,7 +181,16 @@ function AppContent() {
 
 function Sidebar() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userData = localStorage.getItem("user");
+  let user = null;
+  if (userData) {
+    try {
+      user = JSON.parse(userData);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      return null;
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -288,5 +306,4 @@ function Sidebar() {
 
   return null;
 }
-
 export default App;

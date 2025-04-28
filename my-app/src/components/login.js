@@ -102,7 +102,7 @@ const LoginPage = () => {
       });
 
       const data = response.data;
-      console.log("Response data:", data); // Log phản hồi từ server
+      console.log("Response data:", data);
 
       if (data.success) {
         if (!data.user) {
@@ -114,11 +114,11 @@ const LoginPage = () => {
         localStorage.setItem("user", JSON.stringify(data.user));
         console.log("Stored user in localStorage:", data.user);
         if (data.user.role === "admin") {
-          console.log("Redirecting to /home");
-          window.location.href = "/home";
+          console.log("Navigating to /home");
+          navigate("/home");
         } else if (data.user.role === "student") {
-          console.log("Redirecting to /student-home");
-          window.location.href = "/student-home";
+          console.log("Navigating to /student-home");
+          navigate("/student-home");
         } else {
           console.error("Invalid role:", data.user.role);
           alert("Vai trò không hợp lệ!");
