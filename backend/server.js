@@ -951,8 +951,7 @@ app.get("/get-groups", (req, res) => {
 
 app.post("/create-group", (req, res) => {
   const { session_id, mode, min_members, max_members, students } = req.body;
-  console.log('studentsResult:', studentsResult);
-  console.log('Received body at /create-group:', req.body); // Log thêm cho debug
+  console.log('Received body at /create-group:', req.body);
 
   if (!session_id || !mode) {
     return res.status(400).json({
@@ -963,29 +962,30 @@ app.post("/create-group", (req, res) => {
 
   if (mode === 'random') {
     const getStudentsSql = `
-      SELECT s.mssv
-      FROM students s
-      INNER JOIN class_session_students css ON s.mssv = css.mssv
-      WHERE css.session_id = ?
-      AND s.mssv NOT IN (
-        SELECT gm.mssv FROM group_members gm 
-        JOIN student_groups g ON gm.group_id = g.id 
-        WHERE g.session_id = ?
-      )
-    `;
-
+          SELECT s.mssv
+          FROM students s
+          INNER JOIN class_session_students css ON s.mssv = css.mssv
+          WHERE css.session_id = ?
+          AND s.mssv NOT IN (
+              SELECT gm.mssv FROM group_members gm 
+              JOIN student_groups g ON gm.group_id = g.id 
+              WHERE g.session_id = ?
+          )
+      `;
     db.query(getStudentsSql, [session_id, session_id], (err, studentsResult) => {
       if (err) {
         console.error("Lỗi khi lấy danh sách sinh viên:", err);
-        return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+        return res.status(500).json({ success: false, message: "Lỗi máy chủ", error: err.message });
       }
+
+      console.log('Students result:', studentsResult);
 
       if (!studentsResult || studentsResult.length === 0) {
         return res.status(400).json({ success: false, message: "Không có sinh viên để chia nhóm" });
       }
 
       const studentMSSVs = studentsResult.map(row => row.mssv);
-
+      console.log('Student MSSVs:', studentMSSVs);
       const shuffledStudents = studentMSSVs.sort(() => 0.5 - Math.random());
       const groupSize = Math.min(Math.max(min_members || 2, 2), max_members || 5);
       const groups = [];

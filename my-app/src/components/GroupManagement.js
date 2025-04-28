@@ -22,23 +22,23 @@ const GroupManagement = () => {
 
     const fetchSessions = useCallback(async () => {
         try {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
-            credentials: "include",
-          });
-          if (!response.ok) throw new Error("Network response was not ok");
-          const data = await response.json();
-          if (data.success && data.sessions) {
-            setSessions(data.sessions);
-          } else {
-            toast.error("Dữ liệu ca học không đúng định dạng");
-          }
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/class-sessions`, {
+                credentials: "include",
+            });
+            if (!response.ok) throw new Error("Network response was not ok");
+            const data = await response.json();
+            if (data.success && data.sessions) {
+                setSessions(data.sessions);
+            } else {
+                toast.error("Dữ liệu ca học không đúng định dạng");
+            }
         } catch (error) {
-          console.error("Error fetching sessions:", error);
-          toast.error("Không thể tải danh sách ca học");
+            console.error("Error fetching sessions:", error);
+            toast.error("Không thể tải danh sách ca học");
         }
-      }, []);
-    
-    
+    }, []);
+
+
 
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
         try {
@@ -47,10 +47,13 @@ const GroupManagement = () => {
                 { cache: "no-store" }
             );
             const groupData = await groupResponse.json();
-            if (groupData.success && groupData.groups) {
+            console.log('Group data:', groupData); // Debug
+            if (groupData.success && Array.isArray(groupData.groups)) {
                 const groupedStudents = new Set();
                 groupData.groups.forEach((group) => {
-                    group.member_mssvs.forEach((mssv) => groupedStudents.add(mssv));
+                    if (Array.isArray(group.members)) {
+                        group.members.forEach((member) => groupedStudents.add(member.mssv));
+                    }
                 });
                 return allStudents.filter((student) => !groupedStudents.has(student.mssv));
             }
@@ -90,18 +93,18 @@ const GroupManagement = () => {
     const fetchGroups = async (session) => {
         if (!session) return;
         try {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/get-groups?session_id=${session.id}`, {
-            credentials: "include",
-          });
-          const data = await response.json();
-          if (data.success) {
-            setGroups(data.groups);
-          }
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/get-groups?session_id=${session.id}`, {
+                credentials: "include",
+            });
+            const data = await response.json();
+            if (data.success) {
+                setGroups(data.groups);
+            }
         } catch (error) {
-          console.error("Không thể tải danh sách nhóm:", error);
+            console.error("Không thể tải danh sách nhóm:", error);
         }
-      };
-    
+    };
+
 
     const handleSendNotification = useCallback(
         async (e) => {
@@ -199,74 +202,74 @@ const GroupManagement = () => {
 
     const handleCreateGroup = useCallback(
         async (e) => {
-          e.preventDefault();
-    
-          if (!groupSettings.sessionId) {
-            toast.error("Vui lòng chọn ca học");
-            return;
-          }
-    
-          if (
-            (groupSettings.groupMode === "teacher" || groupSettings.groupMode === "student") &&
-            selectedStudents.length === 0
-          ) {
-            toast.error("Vui lòng chọn sinh viên cho nhóm");
-            return;
-          }
-    
-          const payload = {
-            session_id: groupSettings.sessionId,
-            mode: groupSettings.groupMode,
-            min_members: parseInt(groupSettings.minMembers),
-            max_members: parseInt(groupSettings.maxMembers),
-          };
-    
-          if (groupSettings.groupMode !== "random") {
-            payload.students = selectedStudents;
-          }
-    
-          console.log("Payload gửi lên:", payload);
-    
-          setLoading(true);
-          try {
-            const response = await fetch(
-              `${process.env.REACT_APP_API_URL}/create-group`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify(payload),
-              }
-            );
-    
-            const data = await response.json();
-            if (data.success) {
-              toast.success("Tạo nhóm thành công");
-              setGroupSettings({
-                sessionId: "",
-                groupMode: "random",
-                minMembers: 2,
-                maxMembers: 5,
-              });
-              setSelectedStudents([]);
-              await fetchGroups(selectedSession);
-              await fetchStudents(selectedSession);
-            } else {
-              toast.error(data.message || "Không thể tạo nhóm");
+            e.preventDefault();
+
+            if (!groupSettings.sessionId) {
+                toast.error("Vui lòng chọn ca học");
+                return;
             }
-          } catch (error) {
-            console.error("Error creating group:", error);
-            toast.error("Không thể tạo nhóm. Vui lòng thử lại sau.");
-          }
-          setLoading(false);
+
+            if (
+                (groupSettings.groupMode === "teacher" || groupSettings.groupMode === "student") &&
+                selectedStudents.length === 0
+            ) {
+                toast.error("Vui lòng chọn sinh viên cho nhóm");
+                return;
+            }
+
+            const payload = {
+                session_id: groupSettings.sessionId,
+                mode: groupSettings.groupMode,
+                min_members: parseInt(groupSettings.minMembers),
+                max_members: parseInt(groupSettings.maxMembers),
+            };
+
+            if (groupSettings.groupMode !== "random") {
+                payload.students = selectedStudents;
+            }
+
+            console.log("Payload gửi lên:", payload);
+
+            setLoading(true);
+            try {
+                const response = await fetch(
+                    `${process.env.REACT_APP_API_URL}/create-group`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        credentials: "include",
+                        body: JSON.stringify(payload),
+                    }
+                );
+
+                const data = await response.json();
+                if (data.success) {
+                    toast.success("Tạo nhóm thành công");
+                    setGroupSettings({
+                        sessionId: "",
+                        groupMode: "random",
+                        minMembers: 2,
+                        maxMembers: 5,
+                    });
+                    setSelectedStudents([]);
+                    await fetchGroups(selectedSession);
+                    await fetchStudents(selectedSession);
+                } else {
+                    toast.error(data.message || "Không thể tạo nhóm");
+                }
+            } catch (error) {
+                console.error("Error creating group:", error);
+                toast.error("Không thể tạo nhóm. Vui lòng thử lại sau.");
+            }
+            setLoading(false);
         },
         [groupSettings, selectedStudents, selectedSession, fetchGroups, fetchStudents]
-      );
-    
-    
-    
+    );
+
+
+
 
     const handleUpdateGroup = useCallback(
         async (groupId, updatedStudents) => {
@@ -310,7 +313,7 @@ const GroupManagement = () => {
             try {
                 const response = await fetch(
                     `${process.env.REACT_APP_API_URL}/delete-group?group_id=${groupId}`,
-                    {cache: 'no-store'},
+                    { cache: 'no-store' },
                     { credentials: 'include' }
                 );
                 const data = await response.json();
