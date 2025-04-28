@@ -37,7 +37,42 @@ const GroupManagement = () => {
             toast.error("Không thể tải danh sách ca học");
         }
     }, []);
+    const fetchData = useCallback(async () => {
+        if (!selectedSession) return;
 
+        setLoading(true);
+        try {
+            console.log("Đang tải dữ liệu mới cho session:", selectedSession);
+
+            // Tải danh sách sinh viên
+            await fetchStudents(selectedSession);
+
+            // Tải danh sách nhóm
+            const response = await fetch(
+                `${process.env.REACT_APP_API_URL}/get-groups?session_id=${selectedSession}`,
+                { credentials: "include", cache: "no-store" }
+            );
+
+            const data = await response.json();
+            console.log("Dữ liệu nhóm mới:", data);
+
+            if (data.success && Array.isArray(data.groups)) {
+                setGroups([...data.groups]); // Tạo một mảng mới
+            } else {
+                setGroups([]);
+            }
+        } catch (error) {
+            console.error("Lỗi khi tải dữ liệu:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedSession, fetchStudents]);
+
+    useEffect(() => {
+        if (selectedSession) {
+            fetchData();
+        }
+    }, [selectedSession, fetchData]);
 
 
     const filterStudentsWithoutGroup = useCallback(async (sessionId, allStudents) => {
@@ -95,20 +130,30 @@ const GroupManagement = () => {
 
     const fetchGroups = useCallback(async (sessionId) => {
         if (!sessionId) return;
+        console.log("Đang gọi fetchGroups với sessionId:", sessionId);
+
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`, {
                 credentials: "include",
+                cache: "no-store"  // Thêm để tránh cache
             });
+
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP: ${response.status}`);
+            }
+
             const data = await response.json();
-            console.log('Fetched groups:', data); // Debug
+            console.log('Dữ liệu nhóm nhận được:', data);
+
             if (data.success && Array.isArray(data.groups)) {
+                console.log('Cập nhật groups với:', data.groups);
                 setGroups(data.groups);
             } else {
                 console.error("Dữ liệu nhóm không đúng định dạng:", data);
                 setGroups([]);
             }
         } catch (error) {
-            console.error("Không thể tải danh sách nhóm:", error);
+            console.error("Lỗi khi tải danh sách nhóm:", error);
             setGroups([]);
         }
     }, []);
@@ -169,16 +214,17 @@ const GroupManagement = () => {
     );
 
     useEffect(() => {
-        fetchSessions();
-    }, [fetchSessions]);
-
-    useEffect(() => {
         if (selectedSession) {
+            console.log("Đang tải dữ liệu cho session:", selectedSession);
             fetchStudents(selectedSession);
             fetchGroups(selectedSession);
         }
     }, [selectedSession, fetchStudents, fetchGroups]);
 
+    // Thêm console.log cho state groups
+    useEffect(() => {
+        console.log("State groups đã cập nhật:", groups);
+    }, [groups]);
     const handleSessionChange = useCallback((e) => {
         const sessionId = e.target.value;
         setSelectedSession(sessionId);
@@ -584,58 +630,62 @@ const GroupManagement = () => {
 
                     <div className="groups-list">
                         <h3>Danh Sách Nhóm</h3>
-                        {console.log('Current groups state:', groups)}
+                        <p>Tổng số nhóm: {groups.length}</p>
+
                         {groups.length === 0 ? (
                             <p>Chưa có nhóm nào</p>
                         ) : (
-                            groups.map((group) => (
-                                <div key={group.id} className="group-card">
-                                    <div className="group-header">
-                                        <h4>{group.name}</h4>
-                                        <div className="group-actions">
-                                            <button
-                                                className="edit-btn"
-                                                onClick={() => handleEditGroup(group)}
-                                                disabled={loading}
-                                            >
-                                                Chỉnh Sửa
-                                            </button>
-                                            <button
-                                                className="delete-btn"
-                                                onClick={() => handleDeleteGroup(group.id)}
-                                                disabled={loading}
-                                            >
-                                                Xóa
-                                            </button>
+                            <>
+                                {groups.map((group) => (
+                                    <div key={group.id} className="group-card">
+                                        <div className="group-header">
+                                            <h4>{group.name || "Nhóm không tên"}</h4>
+                                            <div className="group-actions">
+                                                <button
+                                                    className="edit-btn"
+                                                    onClick={() => handleEditGroup(group)}
+                                                    disabled={loading}
+                                                >
+                                                    Chỉnh Sửa
+                                                </button>
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={() => handleDeleteGroup(group.id)}
+                                                    disabled={loading}
+                                                >
+                                                    Xóa
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="group-info">
+                                            <span>ID: {group.id}</span>
+                                            <span>
+                                                Chế độ:{' '}
+                                                {group.mode === 'random'
+                                                    ? 'Ngẫu Nhiên'
+                                                    : group.mode === 'teacher'
+                                                        ? 'Giáo Viên Chỉ Định'
+                                                        : 'Sinh Viên Tự Chọn'}
+                                            </span>
+                                            <span>Số thành viên: {group.members ? group.members.length : 0}</span>
+                                        </div>
+                                        <div className="group-members">
+                                            <h5>Thành Viên:</h5>
+                                            {Array.isArray(group.members) && group.members.length > 0 ? (
+                                                <ul>
+                                                    {group.members.map((member, index) => (
+                                                        <li key={index}>
+                                                            {member.hoten} ({member.mssv})
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p>Chưa có thành viên</p>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="group-info">
-                                        <span>
-                                            Chế độ:{' '}
-                                            {group.mode === 'random'
-                                                ? 'Ngẫu Nhiên'
-                                                : group.mode === 'teacher'
-                                                    ? 'Giáo Viên Chỉ Định'
-                                                    : 'Sinh Viên Tự Chọn'}
-                                        </span>
-                                        <span>Số thành viên: {group.members.length}</span>
-                                    </div>
-                                    <div className="group-members">
-                                        <h5>Thành Viên:</h5>
-                                        {Array.isArray(group.members) && group.members.length > 0 ? (
-                                            <ul>
-                                                {group.members.map((member, index) => (
-                                                    <li key={index}>
-                                                        {member.hoten} ({member.mssv})
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p>Chưa có thành viên</p>
-                                        )}
-                                    </div>
-                                </div>
-                            ))
+                                ))}
+                            </>
                         )}
                     </div>
                 </>
