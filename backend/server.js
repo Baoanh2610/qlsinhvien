@@ -1006,7 +1006,10 @@ app.post("/create-group", (req, res) => {
 
             const values = group.map(mssv => [groupId, mssv]);
             db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err2) => {
-              if (err2) return reject(err2);
+              if (err2) {
+                console.error('Error inserting group members:', err2);
+                return reject(err2);
+              }
               resolve();
             });
           });
@@ -1017,14 +1020,12 @@ app.post("/create-group", (req, res) => {
         .then(() => res.json({ success: true, message: "Chia nhóm thành công" }))
         .catch(error => {
           console.error("Lỗi khi tạo nhóm:", error);
-          res.status(500).json({ success: false, message: "Lỗi máy chủ" });
+          res.status(500).json({ success: false, message: "Lỗi máy chủ", error: error.message });
         });
     });
-
   } else {
-    // Nếu mode là teacher hoặc student
     const groupName = `Nhóm ${Date.now()}`;
-    db.query("INSERT INTO student_groups (name, session_id) VALUES (?, ?)", [groupName, session_id], (err, result) => {
+    db.query("INSERT INTO student_groups (name, session_id, mode) VALUES (?, ?, ?)", [groupName, session_id, mode], (err, result) => {
       if (err) {
         console.error("Lỗi khi tạo nhóm:", err);
         return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
@@ -1036,6 +1037,7 @@ app.post("/create-group", (req, res) => {
         db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err2) => {
           if (err2) {
             console.error("Lỗi khi thêm thành viên:", err2);
+            return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
           }
         });
       }

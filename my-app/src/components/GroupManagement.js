@@ -93,7 +93,7 @@ const GroupManagement = () => {
         [filterStudentsWithoutGroup]
     );
 
-    const fetchGroups = async (sessionId) => {
+    const fetchGroups = useCallback(async (sessionId) => {
         if (!sessionId) return;
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/get-groups?session_id=${sessionId}`, {
@@ -111,7 +111,7 @@ const GroupManagement = () => {
             console.error("Không thể tải danh sách nhóm:", error);
             setGroups([]);
         }
-    };
+    });
 
 
     const handleSendNotification = useCallback(
@@ -584,6 +584,7 @@ const GroupManagement = () => {
 
                     <div className="groups-list">
                         <h3>Danh Sách Nhóm</h3>
+                        {console.log('Current groups state:', groups)}
                         {groups.length === 0 ? (
                             <p>Chưa có nhóm nào</p>
                         ) : (
@@ -617,113 +618,21 @@ const GroupManagement = () => {
                                                     ? 'Giáo Viên Chỉ Định'
                                                     : 'Sinh Viên Tự Chọn'}
                                         </span>
-                                        <span>Số thành viên: {group.member_count}</span>
+                                        <span>Số thành viên: {group.members.length}</span>
                                     </div>
-                                    {editingGroup && editingGroup.id === group.id && (
-                                        <div className="edit-actions">
-                                            <button
-                                                className="add-btn"
-                                                onClick={() => setEditMode('add')}
-                                                disabled={loading}
-                                            >
-                                                Thêm
-                                            </button>
-                                            <button
-                                                className="remove-btn"
-                                                onClick={() => setEditMode('remove')}
-                                                disabled={loading}
-                                            >
-                                                Xóa
-                                            </button>
-                                        </div>
-                                    )}
                                     <div className="group-members">
                                         <h5>Thành Viên:</h5>
-                                        {group.members.length === 0 ? (
-                                            <p>Chưa có thành viên</p>
-                                        ) : (
+                                        {Array.isArray(group.members) && group.members.length > 0 ? (
                                             <ul>
                                                 {group.members.map((member, index) => (
                                                     <li key={index}>
                                                         {member.hoten} ({member.mssv})
-                                                        {editingGroup &&
-                                                            editingGroup.id === group.id &&
-                                                            editMode === 'remove' && (
-                                                                <span
-                                                                    className="remove-member"
-                                                                    onClick={() =>
-                                                                        handleRemoveMember(group.id, member.mssv)
-                                                                    }
-                                                                >
-                                                                    ✗
-                                                                </span>
-                                                            )}
                                                     </li>
                                                 ))}
                                             </ul>
+                                        ) : (
+                                            <p>Chưa có thành viên</p>
                                         )}
-                                        {editingGroup &&
-                                            editingGroup.id === group.id &&
-                                            editMode === 'add' && (
-                                                <div className="add-members">
-                                                    <span
-                                                        className="add-member-btn"
-                                                        onClick={() => setEditMode('selecting')}
-                                                    >
-                                                        +
-                                                    </span>
-                                                </div>
-                                            )}
-                                        {editingGroup &&
-                                            editingGroup.id === group.id &&
-                                            editMode === 'selecting' && (
-                                                <div className="student-selection">
-                                                    <h4>Chọn Sinh Viên Để Thêm:</h4>
-                                                    {students.length === 0 ? (
-                                                        <p>Không còn sinh viên nào để thêm</p>
-                                                    ) : (
-                                                        <>
-                                                            {students.map((student) => (
-                                                                <div
-                                                                    key={student.mssv}
-                                                                    className="student-item"
-                                                                >
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        id={`add-${student.mssv}`}
-                                                                        checked={selectedStudents.includes(
-                                                                            student.mssv
-                                                                        )}
-                                                                        onChange={() =>
-                                                                            handleStudentSelect(student.mssv)
-                                                                        }
-                                                                        disabled={loading}
-                                                                    />
-                                                                    <label htmlFor={`add-${student.mssv}`}>
-                                                                        {student.hoten} - {student.mssv}
-                                                                    </label>
-                                                                </div>
-                                                            ))}
-                                                            <div className="form-actions">
-                                                                <button
-                                                                    className="submit-btn"
-                                                                    onClick={handleAddMembers}
-                                                                    disabled={loading}
-                                                                >
-                                                                    Thêm Vào Nhóm
-                                                                </button>
-                                                                <button
-                                                                    className="cancel-btn"
-                                                                    onClick={() => setEditMode(null)}
-                                                                    disabled={loading}
-                                                                >
-                                                                    Hủy
-                                                                </button>
-                                                            </div>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            )}
                                     </div>
                                 </div>
                             ))
