@@ -202,15 +202,101 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// API lấy danh sách người dùng
-app.get("/register", (req, res) => {
-  db.query("SELECT * FROM users", (err, results) => {
-    if (err) {
-      console.error("Lỗi khi lấy danh sách người dùng:", err);
-      return res.status(500).json({ message: "Lỗi khi tải danh sách" });
+// API đăng ký người dùng
+app.post("/register", async (req, res) => {
+  try {
+    const { email, password, role, mssv, hoten, khoa, lop, ngaysinh } = req.body;
+
+    // Kiểm tra thông tin bắt buộc cho tất cả vai trò
+    if (!email || !password || !role) {
+      return res.status(400).json({
+        success: false,
+        message: "Vui lòng nhập đầy đủ thông tin (email, password, role)",
+      });
     }
-    res.json(results);
-  });
+
+    // Nếu là student, kiểm tra thêm các trường thông tin sinh viên
+    if (role === "student") {
+      if (!mssv || !hoten || !khoa || !lop || !ngaysinh) {
+        return res.status(400).json({
+          success: false,
+          message: "Vui lòng nhập đầy đủ thông tin sinh viên (mssv, hoten, khoa, lop, ngaysinh)",
+        });
+      }
+    }
+
+    // Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Lưu thông tin người dùng vào bảng users
+    const userSql = "INSERT INTO users (email, password, role) VALUES (?, ?, ?)";
+    db.query(userSql, [email, hashedPassword, role], (err, result) => {
+      if (err) {
+        console.error("Lỗi khi đăng ký người dùng:", err);
+        if (err.code === 'ER_DUP_ENTRY') {
+          return res.status(400).json({
+            success: false,
+            message: "Email đã tồn tại trong hệ thống",
+          });
+        }
+        return res.status(500).json({
+          success: false,
+          message: "Lỗi khi đăng ký người dùng",
+        });
+      }
+
+      // Lấy ID của người dùng vừa tạo
+      const userId = result.insertId;
+
+      // Nếu là student, lưu thông tin sinh viên vào bảng students
+      if (role === "student") {
+        const studentSql = "INSERT INTO students (mssv, hoten, khoa, lop, ngaysinh) VALUES (?, ?, ?, ?, ?)";
+        db.query(studentSql, [mssv, hoten, khoa, lop, ngaysinh], (err, result) => {
+          if (err) {
+            console.error("Lỗi khi lưu thông tin sinh viên:", err);
+            if (err.code === 'ER_DUP_ENTRY') {
+              return res.status(400).json({
+                success: false,
+                message: "MSSV đã tồn tại trong hệ thống",
+              });
+            }
+            return res.status(500).json({
+              success: false,
+              message: "Lỗi khi lưu thông tin sinh viên",
+            });
+          }
+
+          // Trả về thông tin user
+          res.json({
+            success: true,
+            message: "Đăng ký sinh viên thành công!",
+            user: {
+              id: userId,
+              email,
+              role,
+            },
+          });
+        });
+      } else {
+        // Nếu không phải student, trả về thông tin user
+        res.json({
+          success: true,
+          message: "Đăng ký thành công!",
+          user: {
+            id: userId,
+            email,
+            role,
+          },
+        });
+      }
+    });
+  } catch (error) {
+    console.error("Lỗi khi mã hóa mật khẩu:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi máy chủ",
+    });
+  }
 });
 
 // API xóa người dùng
