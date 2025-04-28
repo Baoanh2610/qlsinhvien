@@ -12,27 +12,29 @@ const StudentHome = () => {
 
   const fetchStudentInfo = async (email) => {
     try {
-      console.log("Fetching student info for email:", email);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-student-by-email`, {
-        params: { email },
+      console.log("Email from localStorage:", email);
+      // Giả sử email của sinh viên cũng chính là MSSV
+      const mssv = email;
+
+      console.log("Fetching student info with MSSV:", mssv);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/get-student/${mssv}`, {
         withCredentials: true,
       });
 
       console.log("API Response:", response.data);
 
-      if (response.data.success && response.data.student) {
-        console.log("Student data received:", response.data.student);
+      if (response.data.success) {
+        console.log("StudentHome: fetched student info =", response.data.student);
         setStudentInfo(response.data.student);
       } else {
-        console.error("API returned success but no student data:", response.data);
+        console.error("Không tìm thấy thông tin sinh viên:", response.data.message);
         setError("Không tìm thấy thông tin sinh viên. Vui lòng liên hệ quản trị viên.");
       }
     } catch (error) {
-      console.error("Error fetching student info:", error);
-      if (error.response) {
-        console.error("Server response:", error.response.data);
-      }
-      setError("Lỗi khi tải thông tin sinh viên: " + (error.message || "Unknown error"));
+      console.error("Lỗi lấy thông tin sinh viên:", error);
+      setError("Lỗi khi tải thông tin sinh viên. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
     }
   };
 
