@@ -111,13 +111,15 @@ const LoginPage = () => {
           setLoading(false);
           return;
         }
+        // Trong hàm handleSubmit của Login.js, sau khi lưu user vào localStorage
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.debug("Stored user in localStorage:", data.user);
+        console.log("Login successful, user stored in localStorage:", data.user);
+
         if (data.user.role === "admin") {
-          console.debug("Navigating to /home");
+          console.log("User is admin, navigating to /home");
           navigate("/home");
         } else if (data.user.role === "student") {
-          console.debug("Navigating to /student-home");
+          console.log("User is student, navigating to /student-home");
           navigate("/student-home");
         } else {
           console.error("Invalid role:", data.user.role);

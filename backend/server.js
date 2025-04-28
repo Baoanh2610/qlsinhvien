@@ -1165,10 +1165,11 @@ app.get("/get-student-by-email", (req, res) => {
     return res.status(400).json({ success: false, message: "Thiếu email" });
   }
 
+  // Điều chỉnh JOIN condition phù hợp với thiết kế database của bạn
   const sql = `
     SELECT s.*
     FROM students s
-    JOIN users u ON s.mssv = u.email
+    JOIN users u ON s.email = u.email  // Hoặc JOIN trên một trường khác phù hợp
     WHERE u.email = ?
   `;
 
@@ -1177,6 +1178,9 @@ app.get("/get-student-by-email", (req, res) => {
       console.error("Lỗi lấy thông tin sinh viên theo email:", err);
       return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
     }
+
+    console.log("Query results:", results); // Thêm log để kiểm tra kết quả
+
     if (results.length === 0) {
       return res.status(404).json({ success: false, message: "Không tìm thấy sinh viên" });
     }
