@@ -829,6 +829,7 @@ app.get("/get-groups", (req, res) => {
 
 app.post("/create-group", (req, res) => {
   console.log('Received body for create-group:', req.body); // <-- Thêm dòng này
+  console.log('studentsResult:', studentsResult);
   const { session_id, mode, min_members, max_members, students } = req.body;
 
   if (!session_id || !mode) {
@@ -850,41 +851,40 @@ app.post("/create-group", (req, res) => {
 
     db.query(getStudentsSql, [session_id, session_id], (err, studentsResult) => {
       if (err) {
-        console.error("Lỗi khi lấy danh sách sinh viên:", err);
+        console.error("Lỗi khi lấy sinh viên:", err);
         return res.status(500).json({ success: false, message: "Lỗi máy chủ" });
       }
-
-      if (studentsResult.length === 0) {
+    
+      if (!studentsResult || studentsResult.length === 0) {
         return res.status(400).json({ success: false, message: "Không có sinh viên để chia nhóm" });
       }
-
-      const shuffledStudents = studentsResult.sort(() => 0.5 - Math.random());
+    
+      // Chuẩn hóa thành array mssv
+      const studentMSSVs = studentsResult.map(row => row.mssv);
+    
+      const shuffledStudents = studentMSSVs.sort(() => 0.5 - Math.random());
       const groupSize = Math.min(Math.max(min_members, 2), max_members || 5);
       const groups = [];
-
+    
       for (let i = 0; i < shuffledStudents.length; i += groupSize) {
         groups.push(shuffledStudents.slice(i, i + groupSize));
       }
-
+    
       const insertGroups = groups.map((group, index) => {
         return new Promise((resolve, reject) => {
           const groupName = `Nhóm ${index + 1}`;
           db.query("INSERT INTO student_groups (name, session_id) VALUES (?, ?)", [groupName, session_id], (err, result) => {
-            if (err) {
-              return reject(err);
-            }
+            if (err) return reject(err);
             const groupId = result.insertId;
-            const values = group.map(student => [groupId, student.mssv]);
-            db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err) => {
-              if (err) {
-                return reject(err);
-              }
+            const values = group.map(mssv => [groupId, mssv]);
+            db.query("INSERT INTO group_members (group_id, mssv) VALUES ?", [values], (err2) => {
+              if (err2) return reject(err2);
               resolve();
             });
           });
         });
       });
-
+    
       Promise.all(insertGroups)
         .then(() => res.json({ success: true, message: "Chia nhóm thành công" }))
         .catch(error => {
@@ -892,6 +892,7 @@ app.post("/create-group", (req, res) => {
           res.status(500).json({ success: false, message: "Lỗi máy chủ" });
         });
     });
+    
 
   } else {
     // Nếu tự chọn (student) hoặc giáo viên chọn (teacher)
