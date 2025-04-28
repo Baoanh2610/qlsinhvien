@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./login.css";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -77,15 +77,15 @@ const LoginPage = () => {
       email: formData.email,
       password: formData.password,
       role: isAdmin ? "admin" : "student",
-      ...(isAdmin || isLogin
-        ? {}
-        : {
+      ...(!isAdmin && !isLogin
+        ? {
           mssv: formData.mssv,
           hoten: formData.hoten,
           khoa: formData.khoa,
           lop: formData.lop,
           ngaysinh: formData.ngaysinh,
-        }),
+        }
+        : {}),
     };
 
     try {
@@ -103,9 +103,9 @@ const LoginPage = () => {
       console.log("Response data:", data);
 
       if (data.success) {
-        if (!data.user) {
-          console.error("Error: No user data in response");
-          alert("Lỗi: Không nhận được thông tin người dùng từ server!");
+        if (!data.user || !data.user.id || !data.user.email || !data.user.role) {
+          console.error("Error: Incomplete user data in response");
+          alert("Lỗi: Thông tin người dùng không đầy đủ từ server!");
           setLoading(false);
           return;
         }
@@ -131,11 +131,15 @@ const LoginPage = () => {
       console.error("Request error:", error);
       if (error.response) {
         console.error("Error response:", error.response.data);
-        setErrors({ general: error.response.data.message || "Đăng nhập/đăng ký thất bại" });
+        setErrors({
+          general: error.response.data.message || "Đăng nhập/đăng ký thất bại",
+        });
         alert(error.response.data.message || "Đăng nhập/đăng ký thất bại");
       } else if (error.request) {
         console.error("No response received");
-        alert("Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet hoặc thử lại sau.");
+        alert(
+          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet hoặc thử lại sau."
+        );
       } else {
         console.error("Unexpected error:", error.message);
         alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
@@ -291,7 +295,13 @@ const LoginPage = () => {
             </div>
           )}
           <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Đang đăng nhập...' : isAdmin ? "Login" : isLogin ? "Sign In" : "Create Account"}
+            {loading
+              ? "Đang xử lý..."
+              : isAdmin
+                ? "Login"
+                : isLogin
+                  ? "Sign In"
+                  : "Create Account"}
           </button>
         </form>
 

@@ -36,6 +36,29 @@ function StudentProfile() {
         }
     }, [navigate]);
 
+    const handleLogout = async () => {
+        try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/logout`, {}, { withCredentials: true });
+            localStorage.removeItem("user");
+            navigate("/login");
+        } catch (err) {
+            console.error("Lỗi khi đăng xuất:", err);
+            localStorage.removeItem("user");
+            navigate("/login");
+        }
+    };
+
+    // Hàm định dạng ngày sinh
+    const formatDate = (dateString) => {
+        if (!dateString) return "Chưa có";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        });
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -64,10 +87,10 @@ function StudentProfile() {
                     <strong>Lớp:</strong> {userInfo.lop || "Chưa có"}
                 </p>
                 <p>
-                    <strong>Ngày Sinh:</strong> {userInfo.ngaysinh || "Chưa có"}
+                    <strong>Ngày Sinh:</strong> {formatDate(userInfo.ngaysinh)}
                 </p>
             </div>
-            <button onClick={() => navigate("/login")}>Đăng xuất</button>
+            <button onClick={handleLogout}>Đăng xuất</button>
         </div>
     );
 }
