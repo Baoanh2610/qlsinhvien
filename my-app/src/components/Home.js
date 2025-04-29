@@ -12,15 +12,7 @@ function Home() {
     hoten: "",
     lop: "",
   });
-  const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [student, setStudent] = useState({
-    mssv: "",
-    hoten: "",
-    khoa: "",
-    lop: "",
-    ngaysinh: "",
-  });
 
   const navigate = useNavigate();
 
@@ -78,62 +70,6 @@ function Home() {
     setFilteredStudents(filtered);
   };
 
-  // Xử lý thay đổi input trong form thêm sinh viên
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setStudent((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // Thêm sinh viên
-  const handleAddStudent = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    if (
-      !student.mssv ||
-      !student.hoten ||
-      !student.khoa ||
-      !student.lop ||
-      !student.ngaysinh
-    ) {
-      toast.error("Vui lòng nhập đầy đủ thông tin!");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const requestData = {
-        mssv: student.mssv,
-        hoten: student.hoten,
-        khoa: student.khoa,
-        lop: student.lop,
-        ngaysinh: student.ngaysinh
-      };
-
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/add-student`, requestData);
-
-      if (response.status === 200) {
-        toast.success(response.data.message || "Thêm sinh viên thành công");
-        // Reset form
-        setStudent({ mssv: "", hoten: "", khoa: "", lop: "", ngaysinh: "" });
-        // Ẩn form
-        setShowAddForm(false);
-        // Chuyển hướng về trang Home
-        navigate('/home');
-      } else {
-        throw new Error(response.data.error || "Không thể thêm sinh viên");
-      }
-    } catch (error) {
-      console.error('Lỗi khi thêm sinh viên:', error);
-      toast.error(error.response?.data?.error || "Không thể thêm sinh viên");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Xóa sinh viên
   const handleDeleteStudent = async (mssv) => {
     if (!window.confirm('Bạn có chắc chắn muốn xóa sinh viên này?')) {
@@ -144,12 +80,10 @@ function Home() {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/delete-student`, { mssv });
 
       if (response.data.message) {
-        // Cập nhật danh sách sinh viên ngay lập tức
         const updatedStudents = students.filter(student => student.mssv !== mssv);
         setStudents(updatedStudents);
         setFilteredStudents(updatedStudents);
 
-        // Hiển thị thông báo thành công
         toast.success("Xóa sinh viên thành công!");
       } else {
         throw new Error(response.data.error || "Không thể xóa sinh viên");
@@ -186,69 +120,7 @@ function Home() {
           value={search.lop}
           onChange={handleSearch}
         />
-        <button className="add-button" onClick={() => setShowAddForm(!showAddForm)}>
-          {showAddForm ? "Ẩn Form" : "Thêm Sinh Viên"}
-        </button>
       </div>
-
-      {showAddForm && (
-        <div className="add-form">
-          <h3>Thêm sinh viên mới</h3>
-          <form onSubmit={handleAddStudent}>
-            <input
-              type="text"
-              name="mssv"
-              placeholder="MSSV"
-              value={student.mssv}
-              onChange={handleChange}
-              required
-              maxLength="20"
-            />
-            <input
-              type="text"
-              name="hoten"
-              placeholder="Họ Tên"
-              value={student.hoten}
-              onChange={handleChange}
-              required
-              maxLength="100"
-            />
-            <input
-              type="text"
-              name="khoa"
-              placeholder="Khoa"
-              value={student.khoa}
-              onChange={handleChange}
-              required
-              maxLength="50"
-            />
-            <input
-              type="text"
-              name="lop"
-              placeholder="Lớp"
-              value={student.lop}
-              onChange={handleChange}
-              required
-              maxLength="50"
-            />
-            <input
-              type="date"
-              name="ngaysinh"
-              value={student.ngaysinh}
-              onChange={handleChange}
-              required
-            />
-            <div className="form-buttons">
-              <button type="submit" disabled={loading}>
-                {loading ? "Đang xử lý..." : "Thêm"}
-              </button>
-              <button type="button" onClick={() => setShowAddForm(false)}>
-                Hủy
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {loading && <div className="loading">Đang tải dữ liệu...</div>}
 
